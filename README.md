@@ -8,8 +8,6 @@ Reúne en una sola página:
 - tarjetas de repaso;
 - un banco de 50 preguntas tipo examen.
 
-🔗 **Versión publicada:** https://claude.ai/artifact/NyHirjdS7tKM7BHFBVeUB3 (privada; se comparte desde el menú *Share*)
-
 ---
 
 ## Principio del proyecto
