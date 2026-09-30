@@ -1,0 +1,3460 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Estudio CTAL-TM v3.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: barra superior fija + índice lateral por capítulos + columna de lectura.
+   Repaso rápido y Práctica son vistas propias. Colores de estado tomados del vocabulario
+   de un test report: passed (verde), failed (rojo), blocked (ámbar). */
+:root {
+  --bg: #f2f5f5;
+  --surface: #ffffff;
+  --surface-2: #e8eeee;
+  --ink: #132227;
+  --muted: #56696e;
+  --line: #d3dedf;
+  --line-strong: #a9bbbe;
+  --accent: #0c6770;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefef;
+  --accent-line: #9ccfd2;
+  --pass: #1b7a43;
+  --pass-soft: #def2e6;
+  --fail: #b3372f;
+  --fail-soft: #f8e2df;
+  --blocked: #98600c;
+  --blocked-soft: #faedd5;
+  --shadow: 0 1px 2px rgba(19, 34, 39, .06), 0 8px 24px rgba(19, 34, 39, .06);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --top-h: 60px;
+  --side-w: 290px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1618; --surface: #142024; --surface-2: #1a292d; --ink: #e1ebeb; --muted: #93a8ac;
+    --line: #25363a; --line-strong: #3d5459; --accent: #52bcc5; --accent-ink: #062024;
+    --accent-soft: #143539; --accent-line: #2b6a70; --pass: #5bc68a; --pass-soft: #15301f;
+    --fail: #f07d73; --fail-soft: #3a1d1a; --blocked: #e4ab50; --blocked-soft: #33270f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1618; --surface: #142024; --surface-2: #1a292d; --ink: #e1ebeb; --muted: #93a8ac;
+  --line: #25363a; --line-strong: #3d5459; --accent: #52bcc5; --accent-ink: #062024;
+  --accent-soft: #143539; --accent-line: #2b6a70; --pass: #5bc68a; --pass-soft: #15301f;
+  --fail: #f07d73; --fail-soft: #3a1d1a; --blocked: #e4ab50; --blocked-soft: #33270f;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: calc(var(--top-h) + 16px); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: .92em; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+strong { font-weight: 600; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+.muted { color: var(--muted); }
+
+/* ---------- Barra superior ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+  height: var(--top-h); display: flex; align-items: center; gap: 14px;
+  padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.menu-btn { display: none; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); display: inline-grid; place-items: center; cursor: pointer; flex: none;
+}
+.icon-btn:hover { border-color: var(--line-strong); }
+.icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--ink); flex: none; }
+.brand b { font-family: var(--f-display); font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+.brand span { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.search { position: relative; flex: 1; max-width: 520px; margin-inline: auto; min-width: 0; }
+.search input {
+  width: 100%; height: 40px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--ink); padding: 0 12px 0 38px; font: inherit; font-size: 15px;
+}
+.search input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+.search > svg { position: absolute; left: 12px; top: 11px; width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2; }
+.search kbd { position: absolute; right: 10px; top: 10px; font-family: var(--f-mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+.results {
+  position: absolute; top: 46px; left: 0; right: 0; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; box-shadow: var(--shadow); max-height: min(70vh, 520px); overflow: auto; padding: 6px;
+}
+.res { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--ink); }
+.res:hover, .res.on { background: var(--accent-soft); }
+.res .rnum { font-family: var(--f-mono); font-size: 12px; color: var(--accent); padding-top: 2px; }
+.res .rtitle { font-weight: 600; }
+.res .rsnip { grid-column: 2; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.res mark, .flash-hit { background: var(--blocked-soft); color: inherit; border-radius: 3px; padding: 0 1px; }
+.res-empty { padding: 14px; color: var(--muted); font-size: 14px; }
+.top-prog { display: flex; align-items: center; gap: 10px; flex: none; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.top-prog .track { width: 90px; height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.top-prog .track i { display: block; height: 100%; width: var(--w, 0%); background: var(--pass); transition: width .3s; }
+
+/* ---------- Estructura ---------- */
+.app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); }
+.sidebar {
+  position: sticky; top: calc(var(--top-h) + env(safe-area-inset-top, 0px));
+  height: calc(100vh - var(--top-h)); overflow-y: auto; border-right: 1px solid var(--line);
+  background: var(--surface); padding: 16px 12px 40px;
+}
+.modes { display: grid; gap: 4px; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.mode {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px;
+  text-decoration: none; color: var(--ink); font-weight: 500;
+}
+.mode svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.mode small { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.mode:hover { background: var(--surface-2); }
+.mode.on { background: var(--accent); color: var(--accent-ink); }
+.mode.on small { color: inherit; opacity: .8; }
+.toc-label { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 4px 12px 8px; }
+.toc-g {
+  display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: start; padding: 8px 10px;
+  border-radius: 9px; text-decoration: none; color: var(--ink); font-size: 14.5px; line-height: 1.35;
+}
+.toc-g:hover { background: var(--surface-2); }
+.toc-g.on { background: var(--accent-soft); font-weight: 600; }
+.toc-g .gnum { font-family: var(--f-mono); font-size: 12px; color: var(--accent); padding-top: 2px; }
+.toc-g .gcount { font-family: var(--f-mono); font-size: 11px; color: var(--muted); padding-top: 2px; }
+.toc-g .gcount.full { color: var(--pass); }
+.toc-secs { list-style: none; margin: 2px 0 8px; padding: 0 0 0 26px; }
+.toc-secs a {
+  display: flex; gap: 8px; padding: 5px 10px; border-radius: 7px; text-decoration: none;
+  color: var(--muted); font-size: 13.5px; line-height: 1.35;
+}
+.toc-secs a:hover { color: var(--ink); background: var(--surface-2); }
+.toc-secs a.cur { color: var(--ink); background: var(--surface-2); }
+.toc-secs a .n { font-family: var(--f-mono); font-size: 11.5px; min-width: 34px; padding-top: 1px; }
+.toc-secs a.d3 { padding-left: 22px; }
+.toc-secs a.done .n { color: var(--pass); }
+.toc-secs a.done::after { content: "✓"; margin-left: auto; color: var(--pass); font-size: 12px; }
+.scrim { display: none; }
+
+main { min-width: 0; padding: 32px clamp(16px, 4vw, 56px) 96px; }
+.view { max-width: 900px; margin: 0 auto; }
+
+/* ---------- Estudio ---------- */
+.hero { padding-block: 8px 28px; display: grid; gap: 14px; }
+.hero h1 { font-size: clamp(2rem, 5.5vw, 3.3rem); font-weight: 800; letter-spacing: -.02em; }
+.hero .sub { font-size: 1.1rem; color: var(--muted); }
+.source-note { border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; background: var(--surface); font-size: 14.5px; color: var(--muted); display: grid; gap: 4px; }
+
+.dash { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 28px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.tile .k { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tile .v { font-family: var(--f-display); font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.tile .v small { font-size: .9rem; color: var(--muted); font-weight: 600; font-family: var(--f-body); }
+.tile .track { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.tile .track i { display: block; height: 100%; width: var(--w, 0%); background: var(--c, var(--accent)); }
+.tile a { font-size: 14px; font-weight: 600; text-decoration: none; }
+.tile a:hover { text-decoration: underline; }
+.chap-bars { display: grid; gap: 6px; font-size: 13px; }
+.chap-bars div { display: grid; grid-template-columns: 44px 1fr 44px; gap: 8px; align-items: center; font-family: var(--f-mono); color: var(--muted); }
+.chap-bars .track { height: 6px; }
+
+.group-head { display: grid; gap: 10px; padding-bottom: 20px; }
+.group-head h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 800; letter-spacing: -.015em; }
+.group-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 14px; color: var(--muted); }
+.group-meta .track { width: 140px; height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.group-meta .track i { display: block; height: 100%; width: var(--w, 0%); background: var(--pass); }
+
+.sec { padding-block: 30px; border-top: 1px solid var(--line); scroll-margin-top: calc(var(--top-h) + 12px); }
+.sec.depth-2 { border-top: 2px solid var(--ink); margin-top: 18px; }
+.sec.lead { border-top: 0; padding-top: 0; }
+.sec-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+.sec-head .num { font-family: var(--f-mono); font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 3px 8px; margin-top: 3px; flex: none; font-weight: 600; }
+.sec-head h2 { font-size: 1.45rem; font-weight: 700; flex: 1; min-width: 0; }
+.sec.depth-2 .sec-head h2 { font-size: 1.8rem; font-weight: 800; }
+.sec.lead .sec-head { justify-content: flex-end; }
+.done-btn {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line);
+  background: var(--surface); border-radius: 99px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--muted);
+}
+.done-btn:hover { border-color: var(--pass); color: var(--pass); }
+.done-btn[aria-pressed="true"] { background: var(--pass-soft); border-color: var(--pass); color: var(--pass); font-weight: 600; }
+.done-btn .box { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid currentColor; display: inline-grid; place-items: center; font-size: 10px; line-height: 1; }
+.sec.flash-on { animation: flashsec 1.6s ease-out; }
+@keyframes flashsec { 0% { background: var(--accent-soft); } 100% { background: transparent; } }
+
+.sec-body { display: grid; gap: 14px; }
+.sec-body > p, .sub > p, .concept > p, .mini > p { max-width: 68ch; }
+.sec-body h3 { font-size: 1.12rem; font-weight: 700; }
+.sec-body h4 { font-size: 1rem; font-weight: 700; font-family: var(--f-body); }
+.sub { display: grid; gap: 12px; margin-top: 8px; }
+.sub-exam { background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 12px; padding: 16px 20px; }
+.sub-example { background: var(--surface-2); border: 1px dashed var(--line-strong); border-radius: 12px; padding: 16px 20px; }
+.tag { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--accent); display: inline-flex; align-items: center; gap: 6px; margin-bottom: -4px; }
+.sub-example .tag { color: var(--blocked); }
+.sub-example .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.sub-exam .tag::before { content: "!"; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-grid; place-items: center; font-size: 11px; }
+.statement { font-family: var(--f-display); font-size: 1.12rem; font-weight: 600; }
+.statement strong { font-weight: 700; }
+
+.card-grid, .mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.concept, .mini { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.sub-example .concept { background: var(--surface); }
+.concept h4, .mini h3 { font-family: var(--f-display); font-size: 1.02rem; font-weight: 700; }
+
+ul.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+ul.chips li { padding: 3px 11px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); font-size: 14px; line-height: 1.5; }
+.sub-exam ul.chips li, .sub-example ul.chips li { background: var(--surface); }
+ul.chips.prio-high li { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+ul.chips.prio li { border-color: var(--accent-line); }
+ul.list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; max-width: 70ch; }
+ul.list li { position: relative; padding-left: 18px; }
+ul.list li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; border-radius: 2px; background: var(--accent); }
+.arr { color: var(--accent); font-weight: 600; }
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: st; max-width: 70ch; }
+ol.steps li { counter-increment: st; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: baseline; }
+ol.steps li::before { content: counter(st); font-family: var(--f-mono); font-size: 12px; font-weight: 600; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: inline-grid; place-items: center; }
+
+ol.flow { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+ol.flow li { display: flex; align-items: center; gap: 10px; }
+ol.flow li span { padding: 9px 14px; border-radius: 10px; border: 1.5px solid var(--accent); background: var(--surface); font-weight: 600; font-size: 15px; }
+ol.flow li:not(:last-child)::after { content: "→"; color: var(--accent); font-weight: 700; font-size: 18px; }
+.formula { font-family: var(--f-mono); font-size: 1.15rem; padding: 14px 18px; border: 1.5px dashed var(--accent-line); border-radius: 10px; background: var(--surface); justify-self: start; }
+
+blockquote.q { margin: 0; padding: 12px 16px; border-left: 3px solid var(--line-strong); background: var(--surface); border-radius: 0 10px 10px 0; font-style: italic; display: grid; gap: 4px; }
+blockquote.q.bad { border-left-color: var(--fail); background: var(--fail-soft); }
+blockquote.q.good { border-left-color: var(--pass); background: var(--pass-soft); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface-2); font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+th.r, td.r { text-align: right; }
+table.versus th:first-child, table.versus td:first-child { border-right: 1px solid var(--line); }
+table.versus th { font-family: var(--f-display); font-size: 15px; }
+table.versus th:first-child { color: var(--accent); }
+table.versus th:last-child { color: var(--blocked); }
+.yn { display: inline-block; font-family: var(--f-mono); font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 99px; }
+.yn.yes { background: var(--pass-soft); color: var(--pass); }
+.yn.no { background: var(--surface-2); color: var(--muted); }
+.bar-cell { display: grid; grid-template-columns: minmax(60px, 1fr) auto; gap: 10px; align-items: center; min-width: 170px; }
+.bar-cell .bar { height: 8px; border-radius: 99px; background: var(--surface-2); position: relative; overflow: hidden; }
+.bar-cell .bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--accent); border-radius: 99px; }
+.bar-cell .num { font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.quad { display: grid; grid-template-columns: 26px 1fr 1fr; grid-template-rows: 1fr 1fr 26px; gap: 8px; max-width: 520px; }
+.quad .cell { border-radius: 12px; padding: 14px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 2px; min-height: 92px; align-content: center; }
+.quad .cell b { font-family: var(--f-display); font-size: 1.05rem; }
+.quad .cell span { font-size: 12.5px; color: var(--muted); font-family: var(--f-mono); }
+.quad .cell.hot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.quad .cell.hot span { color: inherit; opacity: .85; }
+.quad .ax { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: grid; place-items: center; letter-spacing: .06em; text-transform: uppercase; }
+.quad .ax.y { writing-mode: vertical-rl; transform: rotate(180deg); grid-row: 1 / 3; }
+.quad .ax.x { grid-column: 2 / 4; }
+
+ul.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+ul.checklist label { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer; align-items: start; }
+ul.checklist label:hover { background: var(--surface-2); }
+ul.checklist input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--pass); }
+ul.checklist input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-strong); }
+
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.pager a { display: grid; gap: 2px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); text-decoration: none; color: var(--ink); min-width: 0; flex: 1 1 240px; }
+.pager a:hover { border-color: var(--accent); }
+.pager a small { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.pager a.next { text-align: right; }
+
+/* ---------- Botones ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 15px; text-decoration: none; color: var(--ink); }
+.btn:hover { border-color: var(--line-strong); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.primary:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 0 10px; }
+.btn.ghost:hover { color: var(--ink); background: var(--surface-2); }
+.btn.good { color: var(--pass); border-color: var(--pass); }
+.btn.good:hover { background: var(--pass-soft); }
+.btn.warn { color: var(--blocked); border-color: var(--blocked); }
+.btn.warn:hover { background: var(--blocked-soft); }
+
+/* ---------- Repaso rápido ---------- */
+.view-head { display: grid; gap: 10px; padding-bottom: 22px; }
+.view-head h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 800; letter-spacing: -.015em; }
+.view-head p { color: var(--muted); max-width: 62ch; }
+.flash-stage { perspective: 1400px; }
+.flash {
+  width: 100%; min-height: 280px; border: 0; padding: 0; background: none; cursor: pointer; display: block;
+  position: relative; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2, .7, .2, 1);
+}
+.flash.flipped { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; border-radius: 18px; padding: 28px clamp(20px, 5vw, 44px);
+  display: grid; align-content: center; gap: 12px; text-align: left; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow);
+}
+.face .k { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.face .term { font-family: var(--f-display); font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -.015em; line-height: 1.1; }
+.face .hint { font-size: 13px; color: var(--muted); }
+.face.back { transform: rotateY(180deg); background: var(--accent-soft); border-color: var(--accent-line); }
+.face.back .def { font-size: clamp(1.2rem, 3.2vw, 1.6rem); font-family: var(--f-display); font-weight: 600; line-height: 1.3; }
+.face .status { position: absolute; top: 18px; right: 20px; font-family: var(--f-mono); font-size: 11px; padding: 3px 9px; border-radius: 99px; }
+.face .status.known { background: var(--pass-soft); color: var(--pass); }
+.face .status.again { background: var(--blocked-soft); color: var(--blocked); }
+.flash-ctrl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; }
+.flash-ctrl .grp { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.flash-count { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+.term-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); }
+.term-strip button { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 11px; font-size: 13.5px; cursor: pointer; }
+.term-strip button.known { border-color: var(--pass); color: var(--pass); background: var(--pass-soft); }
+.term-strip button.again { border-color: var(--blocked); color: var(--blocked); background: var(--blocked-soft); }
+.term-strip button.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ---------- Práctica ---------- */
+.dist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+.dist .tile .rows { display: grid; gap: 6px; font-size: 13px; }
+.dist .tile .rows div { display: grid; grid-template-columns: 96px 1fr 26px; gap: 8px; align-items: center; font-family: var(--f-mono); color: var(--muted); }
+.dist .tile .rows .track { height: 6px; }
+.qform { display: grid; gap: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px clamp(16px, 3vw, 26px); }
+.qform fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.qform legend { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 0; margin-bottom: 8px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { position: relative; }
+.pill input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.pill span { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; }
+.pill span small { font-family: var(--f-mono); color: var(--muted); font-size: 11.5px; }
+.pill input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pill input:checked + span small { color: inherit; opacity: .8; }
+.pill input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mode-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mode-card { position: relative; }
+.mode-card input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.mode-card span { display: grid; gap: 4px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); height: 100%; }
+.mode-card b { font-family: var(--f-display); font-size: 1.05rem; }
+.mode-card small { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.mode-card input:checked + span { border-color: var(--accent); background: var(--accent-soft); }
+.mode-card input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.qform .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding-top: 4px; }
+.history { margin-top: 26px; display: grid; gap: 8px; }
+.history h2 { font-size: 1.1rem; }
+.hist-row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; }
+.hist-row .pct { font-family: var(--f-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.q-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.q-count { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.q-bar { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin-bottom: 18px; }
+.q-bar i { display: block; height: 100%; width: var(--w, 0%); background: var(--accent); transition: width .3s; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: clamp(18px, 3.5vw, 30px); display: grid; gap: 18px; box-shadow: var(--shadow); }
+.q-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: var(--surface-2); color: var(--muted); font-weight: 500; }
+.chip.k { font-family: var(--f-mono); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.chip.d-medium { font-family: var(--f-mono); }
+.chip.d-medium-high { font-family: var(--f-mono); background: var(--blocked-soft); color: var(--blocked); }
+.chip.d-high { font-family: var(--f-mono); background: var(--fail-soft); color: var(--fail); }
+.q-meta .qid { margin-left: auto; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.q-text { display: grid; gap: 10px; font-size: 1.08rem; line-height: 1.55; }
+.q-text ul.list li::before { background: var(--muted); }
+.opts { display: grid; gap: 10px; }
+.opt {
+  display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left;
+  padding: 13px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; line-height: 1.5;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent-line); background: var(--bg); }
+.opt .L { width: 28px; height: 28px; border-radius: 8px; display: inline-grid; place-items: center; font-family: var(--f-mono); font-weight: 600; font-size: 13px; background: var(--surface-2); color: var(--muted); }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+.opt.sel .L { background: var(--accent); color: var(--accent-ink); }
+.opt.correct { border-color: var(--pass); background: var(--pass-soft); }
+.opt.correct .L { background: var(--pass); color: var(--surface); }
+.opt.wrong { border-color: var(--fail); background: var(--fail-soft); }
+.opt.wrong .L { background: var(--fail); color: var(--surface); }
+.opt:disabled { cursor: default; }
+.opt:disabled:not(.correct):not(.wrong) { opacity: .7; }
+.feedback { border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; border: 1px solid var(--line); background: var(--bg); }
+.feedback .verdict { font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+.feedback.ok .verdict { color: var(--pass); }
+.feedback.ko .verdict { color: var(--fail); }
+.feedback .study-link { font-size: 14px; font-weight: 600; text-decoration: none; justify-self: start; }
+.feedback .study-link:hover { text-decoration: underline; }
+.q-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-top: 16px; }
+.palette { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 18px; }
+.palette button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-mono); font-size: 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.palette button.ans { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent); font-weight: 600; }
+.palette button.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+.confirm { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--blocked); background: var(--blocked-soft); border-radius: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.kbd-hint { font-size: 12.5px; color: var(--muted); margin-top: 14px; }
+.kbd-hint kbd { font-family: var(--f-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; background: var(--surface); }
+
+.score-head { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 24px clamp(18px, 3vw, 28px); }
+.ring { width: 128px; height: 128px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--surface-2) 0); }
+.ring div { width: 100px; height: 100px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.9rem; font-variant-numeric: tabular-nums; }
+.score-head h1 { font-size: 1.7rem; font-weight: 800; }
+.score-head p { color: var(--muted); }
+.breakdown { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0 26px; }
+.breakdown .rows div { grid-template-columns: 88px 1fr 44px; }
+.review-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.review-filter h2 { font-size: 1.2rem; margin-right: auto; }
+.rev { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin-bottom: 8px; }
+.rev summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; }
+.rev summary::-webkit-details-marker { display: none; }
+.rev .mk { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.rev .mk.ok { background: var(--pass-soft); color: var(--pass); }
+.rev .mk.ko { background: var(--fail-soft); color: var(--fail); }
+.rev .mk.na { background: var(--surface-2); color: var(--muted); }
+.rev .st { font-size: 14px; min-width: 0; }
+.rev .st small { display: block; color: var(--muted); font-size: 12.5px; }
+.rev .ans { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.rev .body { padding: 0 16px 16px; display: grid; gap: 12px; }
+.rev .opt { cursor: default; }
+.results-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 26px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .menu-btn { display: inline-grid; }
+  .sidebar {
+    position: fixed; z-index: 50; top: 0; left: 0; bottom: 0; height: auto; width: min(88vw, 330px);
+    transform: translateX(-105%); visibility: hidden; transition: transform .25s ease, visibility 0s linear .25s; box-shadow: var(--shadow);
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+  .sidebar.open { transform: none; visibility: visible; transition: transform .25s ease, visibility 0s; }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 45; background: rgba(8, 16, 18, .45); }
+  .scrim[hidden] { display: none; }
+  .top-prog .track { display: none; }
+}
+@media (max-width: 700px) {
+  .dash, .dist, .breakdown { grid-template-columns: minmax(0, 1fr); }
+  .mode-cards { grid-template-columns: minmax(0, 1fr); }
+  .brand span { display: none; }
+  .search kbd { display: none; }
+  .top-prog { display: none; }
+  .score-head { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .sec-head { flex-wrap: wrap; }
+  .sec-head h2 { flex-basis: calc(100% - 80px); }
+  .sec.depth-2 .sec-head h2 { font-size: 1.5rem; }
+  .quad { grid-template-columns: 22px 1fr 1fr; }
+  .brand b { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" aria-label="Abrir índice" aria-controls="sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#g-0"><b>CTAL-TM</b><span>v3.0 · estudio</span></a>
+  <div class="search" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="search" type="search" placeholder="Buscar concepto: likelihood, SMART, FMEA…" autocomplete="off" aria-label="Buscar concepto" aria-controls="results">
+    <kbd>/</kbd>
+    <div class="results" id="results" role="listbox" hidden></div>
+  </div>
+  <div class="top-prog" title="Secciones marcadas como estudiadas">
+    <span class="track"><i id="top-bar"></i></span><span id="top-pct">0%</span>
+  </div>
+  <button class="icon-btn" id="theme-btn" aria-label="Cambiar tema">
+    <svg viewBox="0 0 24 24" id="theme-icon"></svg>
+  </button>
+</header>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Índice">
+    <nav class="modes">
+      <a class="mode" href="#g-0" data-mode="study"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 4h5.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H13z"/></svg>Resumen<small id="mode-study-count"></small></a>
+      <a class="mode" href="#repaso" data-mode="cards"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Repaso rápido<small id="mode-cards-count"></small></a>
+      <a class="mode" href="#practica" data-mode="quiz"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Práctica<small>50</small></a>
+    </nav>
+    <div class="toc-label">Contenido</div>
+    <div id="toc"></div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main id="main">
+    <div class="view" id="view-study"></div>
+    <div class="view" id="view-cards" hidden></div>
+    <div class="view" id="view-quiz" hidden></div>
+  </main>
+</div>
+
+<script type="text/plain" id="summary-md">`
+
+es la **fuente de datos definitiva de la página**.
+
+Debes conservar:
+
+- títulos;
+- conceptos;
+- definiciones;
+- listas;
+- ejemplos;
+- comparaciones;
+- tablas;
+- términos en inglés utilizados por ISTQB;
+- estructura por capítulos.
+
+Puedes cambiar únicamente la **presentación visual**, no el contenido conceptual.
+
+## Página esperada
+
+La página debe sentirse como una plataforma de estudio y no como un documento plano.
+
+Debe permitir como mínimo:
+
+- navegación por secciones;
+- sidebar o menú;
+- diseño responsive;
+- modo oscuro;
+- buscador por concepto;
+- tarjetas para conceptos importantes;
+- tablas comparativas;
+- bloques visuales para ejemplos;
+- bloques destacados para conceptos de examen;
+- progreso de lectura o estudio;
+- sección de repaso rápido.
+
+Si decides agregar flashcards, filtros o favoritos, deben construirse únicamente con el contenido ya existente en este archivo.
+
+## Fuente de verdad
+
+No utilizar Internet ni conocimiento externo para completar el contenido.
+
+Si algún dato no está incluido aquí, no inventarlo.
+
+---
+
+# CONTENIDO DEL RESUMEN
+
+# ISTQB CTAL Test Management v3.0 — Resumen estructurado para una página web
+
+> Fuente base: ISTQB Certified Tester Advanced Level — Test Management Syllabus v3.0.
+> Este archivo contiene el contenido de estudio resumido y estructurado para que pueda ser convertido en una página web.
+> No añadir teoría que no esté sustentada por el syllabus.
+
+---
+
+# 0. Visión general
+
+## Certificación
+
+**Certified Tester Advanced Level — Test Management v3.0**
+
+El syllabus está orientado a profesionales involucrados en la gestión de pruebas de software.
+
+La certificación cubre principalmente tres bloques:
+
+1. **Managing the Test Activities**
+2. **Managing the Product**
+3. **Managing the Team**
+
+## Distribución del contenido
+
+| Capítulo | Tema | Tiempo de formación |
+|---|---|---:|
+| 1 | Managing the Test Activities | 750 min |
+| 2 | Managing the Product | 390 min |
+| 3 | Managing the Team | 225 min |
+
+## Niveles cognitivos
+
+### K2 — Understand
+Comprender, explicar, resumir o diferenciar conceptos.
+
+### K3 — Apply
+Aplicar un concepto, técnica o método a una situación concreta.
+
+### K4 — Analyze
+Analizar un contexto, evaluar información y seleccionar una acción apropiada.
+
+## Idea central
+
+En Advanced Level no basta con memorizar términos.
+
+El foco está en comprender cómo debe actuar una persona responsable de la gestión de pruebas ante distintos contextos, riesgos, restricciones, métricas, defectos y necesidades del equipo.
+
+---
+
+# 1. Managing the Test Activities
+
+Este capítulo cubre:
+
+- Test Planning
+- Test Monitoring
+- Test Control
+- Test Completion
+- Context of Testing
+- Stakeholders
+- Hybrid Software Development
+- SDLC Models
+- Test Levels
+- Test Types
+- Risk-Based Testing
+- Project Test Strategy
+- Test Objectives
+- Test Process Improvement
+- IDEAL
+- Model-Based Improvement
+- Analytical-Based Improvement
+- Retrospectives
+- Test Tools
+- Tool Selection
+- Tool Lifecycle
+- Tool Metrics
+
+---
+
+# 1.1 Test Process
+
+El proceso de pruebas incluye actividades como:
+
+- test planning
+- test monitoring and control
+- test analysis
+- test design
+- test implementation
+- test execution
+- test completion
+
+En este syllabus, la gestión se concentra especialmente en:
+
+- Test Planning
+- Test Monitoring
+- Test Control
+- Test Completion
+
+---
+
+# 1.1.1 Test Planning
+
+## Definición
+
+Test Planning consiste en determinar cómo se alcanzarán los objetivos de prueba.
+
+Debe considerar:
+
+- contexto del proyecto
+- alcance
+- objetivos
+- test approach
+- riesgos
+- recursos
+- equipo
+- herramientas
+- ambientes
+- datos
+- calendario
+- entregables
+- stakeholders
+
+La planificación debe comenzar lo antes posible y actualizarse conforme evoluciona el proyecto.
+
+## Actividades principales
+
+### Comprender el contexto
+
+Se debe entender:
+
+- estrategia organizacional
+- políticas de prueba
+- alcance
+- test item
+- restricciones
+- stakeholders
+
+### Identificar y analizar riesgos del producto
+
+Los riesgos influyen en:
+
+- prioridades
+- técnicas
+- esfuerzo
+- cobertura
+- secuencia de ejecución
+
+### Definir tratamiento de riesgos
+
+Las respuestas al riesgo pueden incluir:
+
+- prevención
+- mitigación
+- corrección
+- aceptación
+- transferencia
+- planes de contingencia
+
+### Definir el test approach
+
+Debe tomar en cuenta:
+
+- estrategia organizacional
+- regulaciones
+- restricciones
+- riesgos
+- SDLC
+- test levels
+- test types
+- técnicas
+
+### Estimar y asignar recursos
+
+Pueden incluir:
+
+- personas
+- tiempo
+- herramientas
+- ambientes
+- infraestructura
+- datos
+
+### Establecer el test plan
+
+El plan debe estar acordado con los stakeholders relevantes.
+
+---
+
+# 1.1.2 Test Monitoring
+
+## Definición
+
+Test Monitoring consiste en recopilar y analizar información sobre el estado y progreso del testing.
+
+Ejemplos:
+
+- pruebas ejecutadas
+- passed
+- failed
+- blocked
+- pendientes
+- cobertura
+- defectos
+- esfuerzo consumido
+- avance respecto al plan
+- evolución de riesgos
+
+## Ejemplo
+
+Plan:
+
+- 100 casos
+
+Estado actual:
+
+- 60 ejecutados
+- 45 Passed
+- 10 Failed
+- 5 Blocked
+
+Esto es **Test Monitoring**.
+
+---
+
+# 1.1.3 Test Control
+
+## Definición
+
+Test Control utiliza la información obtenida mediante Monitoring para tomar acciones que mantengan el testing alineado con los objetivos y el plan.
+
+Ejemplos:
+
+- repriorizar pruebas
+- cambiar secuencia de ejecución
+- reasignar recursos
+- modificar el calendario
+- revisar entry criteria
+- revisar exit criteria
+- tratar riesgos nuevos
+- ajustar el plan
+- escalar impedimentos
+
+## Diferencia clave
+
+**Monitoring = saber qué está pasando.**
+
+**Control = decidir qué hacer con esa información.**
+
+---
+
+# 1.1.4 Test Completion
+
+Test Completion ocurre normalmente en hitos como:
+
+- fin de una iteración
+- fin de un test level
+- release
+- cierre de proyecto
+
+Incluye:
+
+- crear el Test Completion Report
+- aprobar y comunicar el cierre
+- archivar testware
+- entregar testware reutilizable
+- comunicar defectos conocidos
+- restaurar o limpiar ambientes
+- documentar lessons learned
+- identificar mejoras de proceso
+
+## Idea clave
+
+Finalizar la ejecución no equivale por sí solo a completar el proceso de testing.
+
+---
+
+# 1.2 Context of Testing
+
+El Test Manager debe adaptar el testing al contexto.
+
+Factores relevantes:
+
+- tipo de producto
+- industria
+- regulación
+- riesgos
+- organización
+- stakeholders
+- SDLC
+- test levels
+- test types
+- herramientas
+- capacidades del equipo
+- restricciones
+
+---
+
+# 1.2.1 Stakeholders
+
+Los stakeholders tienen intereses diferentes respecto a la calidad y al testing.
+
+Ejemplos:
+
+- Developers
+- Development Leads
+- Development Managers
+- Testers
+- Test Leads
+- Test Managers
+- Project Managers
+- Product Owners
+- Business Users
+- Operations
+- Customers
+- Users
+
+## Ejemplos de intereses
+
+### Developers
+Necesitan información para corregir defectos y validar componentes.
+
+### Testers
+Necesitan requisitos, riesgos, datos, ambientes y criterios claros.
+
+### Product Owners / Business
+Necesitan información para decidir si el producto cumple necesidades y riesgos aceptables.
+
+### Operations
+Se interesa por readiness, estabilidad y comportamiento en producción.
+
+### Customers / Users
+Se interesan por utilidad, calidad y cumplimiento de necesidades.
+
+---
+
+# 1.2.2 Stakeholder Matrix
+
+La matriz considera:
+
+- influencia
+- interés
+
+| Tipo | Influencia | Interés |
+|---|---|---|
+| Promoters | Alta | Alta |
+| Latents | Alta | Baja |
+| Defenders | Baja | Alta |
+| Apathetics | Baja | Baja |
+
+## Promoters
+
+Stakeholders muy relevantes para estrategia y decisiones.
+
+## Latents
+
+Tienen alto poder, aunque su interés cotidiano sea menor.
+
+## Defenders
+
+Tienen alto interés y pueden aportar feedback útil.
+
+## Apathetics
+
+Tienen bajo interés e influencia, pero pueden requerir comunicación puntual.
+
+---
+
+# 1.2.3 Hybrid Software Development
+
+Un modelo híbrido combina elementos de distintos SDLC.
+
+Puede aparecer por:
+
+- transición hacia Agile
+- regulación
+- necesidades organizacionales
+- partes del proyecto con distintos niveles de riesgo
+- coexistencia de equipos con modelos distintos
+
+En un contexto híbrido se requiere:
+
+- flexibilidad
+- colaboración
+- comunicación
+- coordinación entre equipos
+- comprensión de los distintos modelos
+- seguimiento de pruebas entre sprints y fases tradicionales
+
+---
+
+# 1.2.4 Sequential vs Iterative
+
+| Aspecto | Sequential | Iterative / Agile |
+|---|---|---|
+| Estimación | Detallada desde etapas tempranas | Iterativa |
+| Testware | Más formal y extenso | Más ligero |
+| Roles | Test Manager más diferenciado | Roles integrados |
+| Tools | Gestión por fases | CI/CD y automation importantes |
+| Testing | Fases planificadas | Integrado en iteraciones |
+| Automation | Estratégica | Desde etapas tempranas |
+| Reporting | Por hitos | Continuo |
+| Metrics | Métricas tradicionales | Tradicionales + métricas Agile |
+
+---
+
+# 1.2.5 Test Levels
+
+El Test Manager debe adaptar la gestión a cada nivel.
+
+## Component Testing
+
+- definir alcance
+- definir objetivos
+- definir completion criteria
+- coordinar con desarrollo
+
+## Component Integration Testing
+
+- definir secuencias de integración
+- coordinar combinaciones
+- monitorear progreso
+
+## System Integration Testing
+
+- alinear alcance con riesgos
+- monitorear resultados
+- gestionar issues
+
+## System Testing
+
+- adaptar planificación al SDLC
+- asignar recursos
+- seleccionar herramientas
+- programar ejecución
+
+## Acceptance Testing
+
+- colaborar con stakeholders
+- validar acceptance criteria
+- coordinar UAT
+- facilitar product sign-off
+
+---
+
+# 1.2.6 Test Types
+
+## Functional Testing
+
+Foco en:
+
+- requisitos funcionales
+- cobertura funcional
+- progreso
+- recursos
+
+## Non-Functional Testing
+
+Foco en características como:
+
+- performance
+- security
+- usability
+- reliability
+
+## Black-Box Testing
+
+Foco en:
+
+- escenarios de usuario
+- requisitos
+- comportamiento externo
+
+## White-Box Testing
+
+Foco en:
+
+- estructura interna
+- lógica
+- code coverage
+
+---
+
+# 1.3 Risk-Based Testing
+
+## Definición
+
+Risk-Based Testing utiliza los riesgos para dirigir el testing.
+
+Permite decidir:
+
+- qué probar
+- qué probar primero
+- cuánto probar
+- con qué rigor
+- con qué técnicas
+- durante cuánto tiempo
+
+## Principio
+
+A mayor nivel de riesgo:
+
+- antes debe iniciar el testing
+- más intenso debe ser
+- más prolongado puede ser
+- mayor rigor debe aplicarse
+
+---
+
+# 1.3.1 Estructura del Risk Management
+
+El syllabus organiza el proceso en:
+
+## Risk Analysis
+
+Incluye:
+
+- Risk Identification
+- Risk Assessment
+
+## Risk Control
+
+Incluye:
+
+- Risk Monitoring
+- Risk Mitigation
+
+Flujo conceptual:
+
+**Identification → Assessment → Mitigation + Monitoring**
+
+Estas actividades pueden solaparse.
+
+---
+
+# 1.3.2 Product Risk vs Project Risk
+
+## Product Risk
+
+Situación potencial donde puede existir un problema de calidad en el producto.
+
+Ejemplos:
+
+- cálculo financiero incorrecto
+- vulnerabilidad
+- transferencia duplicada
+- pérdida de información
+- integración incorrecta
+
+## Project Risk
+
+Riesgo que afecta la ejecución del proyecto.
+
+Ejemplos:
+
+- ambiente no disponible
+- falta de personal
+- presión de tiempo
+- dependencia externa
+- datos incompletos
+- problemas de coordinación
+
+## Importante
+
+Risk-Based Testing se enfoca principalmente en **quality risks / product risks**.
+
+---
+
+# 1.3.3 Risk Identification
+
+Técnicas mencionadas en el syllabus:
+
+- Expert Interviews
+- Independent Assessments
+- Retrospectives
+- Risk Workshops
+- Brainstorming
+- Checklists
+- Past Experience
+
+## Idea importante
+
+La identificación debe involucrar una muestra amplia de stakeholders relevantes.
+
+Omitir stakeholders importantes puede provocar que riesgos significativos no sean identificados.
+
+---
+
+# 1.3.4 Quality Risk Assessment
+
+El risk level se determina principalmente mediante:
+
+- Risk Likelihood
+- Risk Impact
+
+## Factores que influyen en Likelihood
+
+Ejemplos:
+
+- complejidad técnica
+- herramientas
+- arquitectura
+- madurez organizacional
+- skills
+- disponibilidad del personal
+- conflictos
+- proveedores
+- equipos distribuidos
+- liderazgo débil
+- presión de tiempo
+- presión de presupuesto
+- falta de QA temprano
+- alta tasa de cambios
+
+## Factores que influyen en Impact
+
+Ejemplos:
+
+- frecuencia de uso
+- criticidad de la funcionalidad
+- criticidad del objetivo de negocio
+- daño reputacional
+- pérdida de ingresos
+- pérdidas financieras
+- impacto ambiental o social
+- sanciones legales
+- problemas de integración
+- falta de workaround
+- necesidades de seguridad
+
+## Riesgo cuantitativo
+
+Si existen suficientes datos estadísticos válidos, el riesgo puede evaluarse cuantitativamente.
+
+Ejemplo conceptual:
+
+`Risk Level = Likelihood × Impact`
+
+## Riesgo cualitativo
+
+Es común utilizar escalas:
+
+- Very High
+- High
+- Medium
+- Low
+- Very Low
+
+y combinarlas mediante una matriz de riesgo.
+
+---
+
+# 1.3.5 Risk Mitigation
+
+El esfuerzo de testing debe ser proporcional al riesgo.
+
+Para riesgos altos:
+
+- probar antes
+- usar técnicas más rigurosas
+- dedicar mayor esfuerzo
+- utilizar personal más capacitado
+- considerar más test levels
+- considerar más test types
+- combinar static y dynamic testing cuando corresponda
+
+Para riesgos bajos:
+
+- puede iniciar más tarde
+- puede usar técnicas menos rigurosas
+
+## Otras respuestas al riesgo
+
+Además del testing pueden existir:
+
+- contingency plan
+- transferir riesgo
+- aceptar riesgo
+
+---
+
+# 1.3.6 Heavyweight vs Lightweight Risk-Based Testing
+
+## Heavyweight
+
+Características:
+
+- formal
+- procedimientos definidos
+- documentación detallada
+- grupos amplios de stakeholders
+- análisis más profundo
+- fórmulas o factores detallados
+
+Ejemplos mencionados:
+
+- Hazard Analysis
+- Cost of Exposure
+- FMEA
+- Fault Tree Analysis
+
+Se usa frecuentemente en sistemas safety-critical.
+
+## Lightweight
+
+Características:
+
+- menor esfuerzo
+- menor formalidad
+- menos stakeholders
+- escalas ordinales
+- focus en likelihood + impact
+
+Ejemplos mencionados:
+
+- SST
+- PRAM
+- PRISMA
+
+Se utiliza con frecuencia en aplicaciones no safety-critical.
+
+---
+
+# 1.3.7 Success Metrics de Risk-Based Testing
+
+Preguntas útiles para evaluar si funcionó:
+
+- ¿Participaron stakeholders relevantes?
+- ¿La participación fue apropiada?
+- ¿Se resolvieron incidentes críticos escapados a producción?
+- ¿Los defectos de alta prioridad fueron encontrados temprano?
+- ¿Se pudieron explicar resultados en términos de riesgo?
+- ¿Las pruebas omitidas tenían menor riesgo que las ejecutadas?
+
+---
+
+# 1.4 Project Test Strategy
+
+La estrategia de pruebas debe alinearse con:
+
+- organizational test strategy
+- contexto del proyecto
+- riesgos
+- stakeholders
+- recursos
+- restricciones
+- SDLC
+
+---
+
+# 1.4.1 Test Strategy vs Test Approach
+
+## Test Strategy
+
+Describe cómo se realizará el testing para alcanzar los objetivos bajo determinadas circunstancias.
+
+## Test Approach
+
+Describe cómo se implementan las tareas de testing.
+
+Puede incluir:
+
+- test levels
+- test types
+- técnicas
+- static testing
+- dynamic testing
+- scripted testing
+- manual testing
+- automatización
+
+## Resumen
+
+**Strategy = dirección general.**
+
+**Approach = implementación concreta.**
+
+---
+
+# 1.4.2 Test Objectives
+
+Los objetivos deben ser medibles y coherentes con:
+
+- riesgos
+- contexto
+- stakeholders
+- test scope
+- recursos
+- ambientes
+- herramientas
+
+---
+
+# 1.4.3 SMART
+
+Los objetivos deben seguir:
+
+- **Specific**
+- **Measurable**
+- **Achievable**
+- **Relevant**
+- **Time-bound**
+
+## Ejemplo
+
+Objetivo poco útil:
+
+> Mejorar la calidad.
+
+Objetivo medible:
+
+> Ejecutar todos los tests definidos para riesgos de nivel alto antes del cierre de la iteración y cumplir los exit criteria establecidos.
+
+---
+
+# 1.4.4 Exit Criteria
+
+Permiten decidir cuándo una actividad de prueba puede finalizar.
+
+Ejemplos:
+
+- cobertura alcanzada
+- riesgos cubiertos
+- porcentaje de pruebas ejecutadas
+- defectos críticos resueltos
+- objetivos cumplidos
+
+Deben relacionarse con los test objectives.
+
+---
+
+# 1.5 Improving the Test Process
+
+El objetivo es mejorar:
+
+- efectividad
+- eficiencia
+- calidad del proceso
+- comunicación
+- aprendizaje
+
+La mejora puede iniciarse por:
+
+- resultados insatisfactorios
+- defectos inesperados
+- cambios de contexto
+- benchmarks
+- problemas de comunicación
+
+---
+
+# 1.5.1 IDEAL
+
+IDEAL significa:
+
+1. **Initiating**
+2. **Diagnosing**
+3. **Establishing**
+4. **Acting**
+5. **Learning**
+
+## Initiating
+
+Definir:
+
+- objetivos
+- alcance
+- stakeholders
+
+## Diagnosing
+
+Evaluar la situación actual e identificar oportunidades.
+
+## Establishing
+
+Definir el plan de mejora.
+
+## Acting
+
+Implementar las mejoras.
+
+## Learning
+
+Evaluar resultados y aprender.
+
+---
+
+# 1.5.2 Model-Based Test Process Improvement
+
+Puede utilizar modelos de mejora existentes.
+
+El syllabus menciona:
+
+- TMMi
+- TPI NEXT
+
+Estos modelos permiten comparar el estado actual del proceso contra un modelo de referencia y definir mejoras.
+
+---
+
+# 1.5.3 Analytical-Based Improvement
+
+Parte del análisis de información real del proyecto.
+
+Puede utilizar:
+
+- métricas
+- problemas
+- causas
+- defectos
+- tendencias
+
+para identificar oportunidades concretas.
+
+---
+
+# 1.5.4 Retrospectives
+
+Las retrospectivas permiten:
+
+- analizar qué funcionó
+- identificar problemas
+- encontrar causas
+- definir acciones
+- mejorar el siguiente ciclo
+
+## Ejemplo
+
+Problema:
+
+30% de las pruebas se bloquearon por datos.
+
+Acción:
+
+Preparar datasets antes de la siguiente iteración.
+
+---
+
+# 1.6 Test Tools
+
+Las herramientas deben seleccionarse según contexto y necesidad.
+
+No deben introducirse únicamente por popularidad.
+
+---
+
+# 1.6.1 Good Practices for Tool Introduction
+
+Considerar:
+
+- necesidad real
+- objetivos
+- piloto
+- capacitación
+- soporte
+- integración
+- riesgos
+- costos
+- beneficios
+
+---
+
+# 1.6.2 Technical and Business Aspects
+
+## Aspectos técnicos
+
+- compatibilidad
+- tecnología
+- integración
+- infraestructura
+- mantenimiento
+- interoperabilidad
+
+## Aspectos de negocio
+
+- costo
+- beneficios
+- ROI
+- licencias
+- capacitación
+- vendor
+- sostenibilidad
+
+---
+
+# 1.6.3 Tool Selection
+
+La selección debe analizar:
+
+- riesgos
+- costos
+- beneficios
+- contexto
+- skills
+- mantenimiento
+- integración
+- proceso de adopción
+
+---
+
+# 1.6.4 Tool Lifecycle
+
+Incluye etapas como:
+
+- adquisición / introducción
+- uso
+- mantenimiento
+- evolución
+- retiro
+
+## Evolution
+
+La herramienta puede necesitar cambios por:
+
+- nuevas necesidades
+- cambios del entorno
+- vendor
+- tecnología
+
+## Retirement
+
+Debe planificarse:
+
+- reemplazo
+- conservación de datos
+- migración
+- archivo
+
+---
+
+# 1.6.5 Tool Metrics
+
+Ejemplos:
+
+## Test Management Tools
+
+- planned tests
+- executed tests
+- passed
+- failed
+- skipped
+- blocked
+
+## Requirements Tools
+
+- requirements coverage
+- traceability
+
+## Defect Tools
+
+- severity
+- priority
+- status
+- defect density
+- defect lead time
+
+## Static Analysis
+
+- code complexity
+
+## Performance Tools
+
+- response time
+- failure rate
+
+## Coverage Tools
+
+- code coverage
+
+---
+
+# 2. Managing the Product
+
+Este capítulo cubre:
+
+- Test Metrics
+- Monitoring
+- Control
+- Completion
+- Reporting
+- Test Estimation
+- Defect Management
+
+---
+
+# 2.1 Test Metrics
+
+## Objetivo
+
+Las métricas permiten determinar si los test objectives están siendo alcanzados.
+
+Cada métrica debe:
+
+- definirse
+- medirse
+- monitorearse
+- reportarse
+
+---
+
+# 2.1.1 Categorías de métricas
+
+## Project Metrics
+
+Miden el progreso respecto a criterios del proyecto.
+
+Ejemplos:
+
+- porcentaje ejecutado
+- porcentaje passed
+- porcentaje failed
+
+## Product Metrics
+
+Miden atributos del producto.
+
+Ejemplos:
+
+- calidad observada
+- cobertura
+- comportamiento del producto
+
+## Process Metrics
+
+Miden:
+
+- capacidad del proceso
+- efectividad
+- eficiencia
+
+---
+
+# 2.1.2 Métricas de Monitoring / Control / Completion
+
+Ejemplos mencionados:
+
+| Métrica | Monitoring / Control | Completion |
+|---|---|---|
+| Requirements coverage | Sí | Sí |
+| Product risk coverage | Sí | Sí |
+| Code coverage | Sí | No |
+| Actual vs planned estimation | Sí | No |
+| Executed test cases by status | Sí | Sí |
+| Resolved vs accumulated defects | Sí | No |
+| Actual vs planned automated tests | No | Sí |
+| Actual vs planned cost | No | Sí |
+
+## Idea
+
+Monitoring / Control se concentra principalmente en progreso.
+
+Completion se concentra principalmente en cumplimiento de objetivos.
+
+---
+
+# 2.1.3 Test Reporting
+
+Los reportes deben ayudar a stakeholders a tomar decisiones.
+
+No basta con mostrar datos.
+
+Hay que comunicar:
+
+- progreso
+- riesgos
+- desviaciones
+- defectos relevantes
+- cumplimiento de objetivos
+- exit criteria
+- implicaciones
+
+## Ejemplo
+
+Reporte poco útil:
+
+> 420 Passed, 18 Failed.
+
+Reporte más útil:
+
+> El 95% del alcance fue ejecutado. Permanecen 18 fallos; algunos afectan funcionalidades de riesgo alto y deben evaluarse antes del cierre.
+
+---
+
+# 2.2 Test Estimation
+
+La estimación debe considerar todas las actividades necesarias para testing.
+
+No solo ejecución.
+
+---
+
+# 2.2.1 Factores que influyen en el esfuerzo
+
+Ejemplos:
+
+- complejidad
+- riesgos
+- test basis
+- calidad de requisitos
+- skills
+- experiencia
+- automatización
+- herramientas
+- ambientes
+- datos
+- dependencias
+- SDLC
+- test levels
+- test types
+- restricciones de tiempo
+
+---
+
+# 2.2.2 Selección de técnica
+
+Factores relevantes:
+
+- complejidad
+- disponibilidad de datos históricos
+- disponibilidad de expertos
+- conocimiento de modelos
+- tiempo disponible
+- SDLC
+
+## Regla conceptual del syllabus
+
+Si la complejidad es baja, pueden utilizarse técnicas basadas en métricas.
+
+Si la complejidad es alta, pueden utilizarse técnicas basadas en expertos.
+
+En un modelo secuencial puede ser apropiado Wideband Delphi.
+
+En Agile puede ser apropiado Planning Poker.
+
+---
+
+# 2.2.3 Three-Point Estimation
+
+Utiliza:
+
+- Optimistic
+- Most Likely
+- Pessimistic
+
+Permite calcular:
+
+- expected value
+- standard deviation
+
+Su objetivo es representar incertidumbre.
+
+---
+
+# 2.2.4 Ratio-Based Estimation
+
+Utiliza relaciones derivadas de información histórica.
+
+Necesita datos anteriores confiables.
+
+---
+
+# 2.2.5 Extrapolation
+
+Utiliza tendencias históricas para proyectar esfuerzo futuro.
+
+También depende de datos históricos.
+
+---
+
+# 2.2.6 Wideband Delphi
+
+Técnica basada en expertos.
+
+Proceso general:
+
+1. expertos estiman
+2. se comparan resultados
+3. se discuten diferencias
+4. se revisan estimaciones
+5. se busca convergencia
+
+---
+
+# 2.2.7 Planning Poker
+
+Técnica basada en estimación del equipo.
+
+Frecuente en Agile.
+
+Proceso conceptual:
+
+1. entender el trabajo
+2. estimar individualmente
+3. revelar estimaciones
+4. discutir diferencias
+5. volver a estimar
+
+---
+
+# 2.3 Defect Management
+
+## Objetivo
+
+Gestionar defectos permite:
+
+- conocer el estado del producto
+- monitorear calidad
+- priorizar correcciones
+- controlar trabajo
+- obtener información para mejora
+
+---
+
+# 2.3.1 Defect Lifecycle
+
+La detección temprana reduce el costo total de calidad.
+
+## Static Testing
+
+Busca defectos directamente en work products.
+
+Ejemplos:
+
+- requirements
+- design
+- code
+
+## Dynamic Testing
+
+El defecto puede manifestarse como un failure.
+
+La diferencia entre actual y expected constituye una anomalía que debe investigarse.
+
+## Idea importante
+
+Un test fallido no necesariamente implica automáticamente un defecto del producto.
+
+También puede existir:
+
+- problema de automatización
+- error de datos
+- misunderstanding
+- problema de ambiente
+
+---
+
+# 2.3.2 Cross-Functional Defect Management
+
+Defect Management requiere:
+
+- buena comunicación
+- defect workflow
+- herramientas
+- roles claros
+- coordinación entre stakeholders
+
+La herramienta no sustituye la comunicación.
+
+La reunión de defectos tampoco sustituye una buena herramienta.
+
+Ambas cosas se complementan.
+
+---
+
+# 2.3.3 Defect Management en Agile
+
+Puede ser menos formal.
+
+No todos los defectos requieren necesariamente un reporte formal inmediato.
+
+Sí se recomienda crear defect reports cuando:
+
+- bloquean trabajo del sprint
+- no pueden resolverse en la misma iteración
+- requieren otros equipos
+- requieren proveedores
+- se necesita seguimiento formal
+
+Los defectos no resueltos pueden añadirse al Product Backlog.
+
+El nivel de formalidad depende de:
+
+- co-location
+- time zones
+- cantidad de equipos
+- madurez
+- tamaño
+- riesgos
+- regulación
+- contratos
+
+---
+
+# 2.3.4 Hybrid Defect Management
+
+Retos comunes:
+
+- diferentes herramientas
+- diferentes workflows
+- distinta cadencia
+- distinta priorización
+- falta de transparencia
+- alineación de planes
+
+Buenas prácticas:
+
+- sincronizar herramientas
+- acordar defect attributes
+- involucrar Product Owners
+- compartir planes
+- coordinar prioridades
+
+---
+
+# 2.3.5 Defect Report Information
+
+La información debe ser suficiente para:
+
+- gestionar el lifecycle
+- evaluar calidad
+- evaluar progreso
+- evaluar un increment
+- analizar capacidad del proceso
+
+## Información mínima importante
+
+- defect title
+- short summary
+- detailed description
+- steps to reproduce
+- severity
+- priority
+
+## Información adicional habitual
+
+- unique ID
+- creation date/time
+- reporter
+- project
+- SDLC phase
+- current state
+- owner
+- change history
+- references
+
+## Principio
+
+No agregar campos innecesarios.
+
+Cada campo aumenta esfuerzo y puede generar confusión.
+
+Recopilar únicamente información que tenga utilidad real.
+
+---
+
+# 2.3.6 Defect Data for Process Improvement
+
+Los defectos pueden utilizarse para mejorar procesos.
+
+Ejemplos:
+
+- root cause → prevenir defectos similares
+- defect location → detectar clusters
+- reopened defects → evaluar calidad del debugging
+- duplicate / rejected → evaluar calidad de reportes
+
+No registrar defectos reduce la visibilidad y dificulta la mejora basada en datos.
+
+---
+
+# 3. Managing the Team
+
+Este capítulo cubre:
+
+- competencias
+- skills
+- skill assessment
+- skill development
+- management skills
+- motivation
+- stakeholder relationships
+- cost of quality
+- cost-benefit
+
+---
+
+# 3.1 Four Areas of Competence
+
+El syllabus divide las competencias en cuatro grupos.
+
+---
+
+# 3.1.1 Professional Competence
+
+Capacidad para realizar tareas especializadas.
+
+Ejemplos:
+
+- test techniques
+- tecnología
+- dominio de negocio
+- project management
+- test management
+
+---
+
+# 3.1.2 Methodological Competence
+
+Capacidad para resolver tareas complejas o nuevas.
+
+Ejemplos:
+
+- analytical skills
+- conceptual skills
+- judgment
+
+---
+
+# 3.1.3 Social Competence
+
+Capacidad para trabajar con otras personas.
+
+Ejemplos:
+
+- communication
+- cooperation
+- conflict management
+- teamwork
+- adaptability
+- assertiveness
+
+---
+
+# 3.1.4 Personal Competence
+
+Capacidad y disposición para desarrollarse y gestionar el propio desempeño.
+
+Ejemplos:
+
+- self-management
+- responsibility
+- ability to receive criticism
+- reliability
+- resilience
+- confidence
+- discipline
+- openness to change
+- willingness to learn
+- ability to delegate
+
+---
+
+# 3.2 Required Skills
+
+Las necesidades dependen del contexto.
+
+Ejemplos:
+
+## Test Planning
+
+Requiere:
+
+- conceptual knowledge
+- strategy development
+
+## Monitoring and Control
+
+Requiere:
+
+- project management skills
+
+## Test Analysis
+
+Requiere:
+
+- analytical skills
+- risk analysis
+
+La composición del equipo debe cubrir los skills necesarios.
+
+Si faltan capacidades, puede utilizarse apoyo externo.
+
+---
+
+# 3.3 Skill Development
+
+Las capacidades pueden desarrollarse mediante:
+
+- experiencia
+- educación
+- training
+- acompañamiento
+- aprendizaje práctico
+
+El objetivo es cerrar gaps entre:
+
+**skills requeridos vs skills disponibles**
+
+---
+
+# 3.4 Management Skills
+
+La persona responsable de gestión necesita combinar:
+
+- conocimiento técnico
+- capacidad de planificación
+- comunicación
+- liderazgo
+- coordinación
+- resolución de conflictos
+- toma de decisiones
+- gestión de stakeholders
+
+---
+
+# 3.5 Motivation — Herzberg
+
+El syllabus utiliza la Motivation-Hygiene Theory.
+
+---
+
+# 3.5.1 Motivators
+
+Pueden generar crecimiento y satisfacción.
+
+Ejemplos:
+
+- reconocimiento
+- apreciación
+- mayor responsabilidad
+- autonomía
+- tareas interesantes
+- tareas desafiantes
+- avance profesional
+- desarrollo
+
+---
+
+# 3.5.2 Hygiene Factors
+
+Su existencia no garantiza mayor satisfacción.
+
+Su ausencia puede desmotivar.
+
+Ejemplos:
+
+- remuneración apropiada
+- buenas políticas de personal
+- management style adecuado
+- objetivos realistas
+- condiciones de trabajo
+- especificaciones claras
+- test objects maduros
+- ambientes estables
+- seguridad laboral
+- buenas relaciones interpersonales
+
+## Idea clave
+
+La gestión debe:
+
+- reducir factores desmotivadores
+- fortalecer factores motivadores
+
+---
+
+# 3.6 Cost of Quality
+
+El Cost of Quality agrupa los costos relacionados con calidad y defectos.
+
+Existen cuatro categorías.
+
+---
+
+# 3.6.1 Defect Prevention Costs
+
+Costos proactivos destinados a prevenir problemas.
+
+Ejemplos:
+
+- training
+- reviews tempranos
+- comunicación
+- prácticas para mejorar calidad
+
+---
+
+# 3.6.2 Appraisal Costs
+
+Costos asociados con detectar defectos.
+
+Ejemplos:
+
+- static testing
+- dynamic testing
+- reviews
+- ejecución de pruebas
+
+---
+
+# 3.6.3 Internal Failure Costs
+
+Costos reactivos antes de liberar el producto.
+
+Ejemplos:
+
+- corregir defectos
+- re-testing
+- workarounds internos
+- retrabajo
+
+---
+
+# 3.6.4 External Failure Costs
+
+Costos reactivos después de la entrega.
+
+Ejemplos:
+
+- pérdida de ingresos
+- pérdida de activos
+- impacto en salud o seguridad
+- daño ambiental
+- costos legales
+- correcciones en producción
+- despliegues correctivos
+
+---
+
+# 3.7 Cost-Benefit Relationship of Testing
+
+El objetivo no es maximizar el testing sin límite.
+
+El Test Manager debe ayudar a encontrar un equilibrio entre:
+
+- costo de testing
+- beneficio esperado
+- riesgo
+- costo de fallos
+
+## Idea central
+
+**Muy poco testing** puede producir baja calidad y altos costos de fallos.
+
+**Demasiado testing** puede generar retrasos y costos mayores que el beneficio.
+
+El objetivo es encontrar un nivel apropiado de testing.
+
+---
+
+# 4. Comparaciones clave
+
+## Monitoring vs Control
+
+| Monitoring | Control |
+|---|---|
+| Recopila información | Toma acciones |
+| Mide progreso | Corrige desviaciones |
+| Evalúa estado | Ajusta el plan |
+
+---
+
+## Product Risk vs Project Risk
+
+| Product Risk | Project Risk |
+|---|---|
+| Afecta calidad del producto | Afecta ejecución del proyecto |
+| Error funcional | Falta de recursos |
+| Seguridad | Ambiente no disponible |
+| Datos incorrectos | Retraso de proveedor |
+
+---
+
+## Test Strategy vs Test Approach
+
+| Strategy | Approach |
+|---|---|
+| Dirección general | Implementación |
+| Define cómo alcanzar objetivos | Define cómo ejecutar las tareas |
+
+---
+
+## Prevention vs Appraisal
+
+| Prevention | Appraisal |
+|---|---|
+| Evitar defectos | Detectar defectos |
+| Training | Testing |
+| Reviews tempranos | Inspecciones |
+
+---
+
+## Internal vs External Failure
+
+| Internal Failure | External Failure |
+|---|---|
+| Antes de entrega | Después de entrega |
+| Defecto encontrado en QA | Defecto encontrado en producción |
+
+---
+
+## Heavyweight vs Lightweight RBT
+
+| Heavyweight | Lightweight |
+|---|---|
+| Formal | Menos formal |
+| Documentación detallada | Documentación reducida |
+| Más stakeholders | Menos stakeholders |
+| Mayor esfuerzo | Menor esfuerzo |
+| Safety-critical | Frecuente en contextos menos críticos |
+
+---
+
+# 5. Flujos para mostrar visualmente
+
+## Test Management
+
+**Planning → Monitoring → Control → Completion**
+
+## Risk Management
+
+**Risk Identification → Risk Assessment → Risk Mitigation / Risk Monitoring**
+
+## IDEAL
+
+**Initiating → Diagnosing → Establishing → Acting → Learning**
+
+## Defect Lifecycle conceptual
+
+**Detect → Report → Analyze → Prioritize → Fix → Retest → Close**
+
+---
+
+# 6. Ejemplos prácticos
+
+## Ejemplo 1 — Monitoring vs Control
+
+Se planificaron 100 pruebas.
+
+Estado:
+
+- 60 ejecutadas
+- 45 Passed
+- 10 Failed
+- 5 Blocked
+
+Esto es **Monitoring**.
+
+El Test Manager detecta que los 5 bloqueos se deben a un ambiente inestable y decide:
+
+- escalar el incidente
+- ejecutar primero las pruebas no dependientes
+- reasignar temporalmente recursos
+
+Esto es **Control**.
+
+---
+
+## Ejemplo 2 — Product Risk
+
+Una API bancaria puede procesar dos veces una transferencia.
+
+Likelihood: Media
+
+Impact: Crítico
+
+El riesgo debe recibir alta atención porque el impacto es significativo.
+
+Acciones posibles:
+
+- probar temprano
+- aumentar cobertura
+- ejecutar pruebas de concurrencia
+- usar pruebas negativas
+- automatizar regresión crítica
+
+---
+
+## Ejemplo 3 — Project Risk
+
+El ambiente QA estará fuera de servicio durante dos días.
+
+Esto afecta la ejecución del proyecto, no directamente la calidad del producto.
+
+Es un **Project Risk**.
+
+---
+
+## Ejemplo 4 — Metrics
+
+Reporte:
+
+> 95% de pruebas Passed.
+
+Por sí solo no basta.
+
+Si el 5% fallido afecta funcionalidades de riesgo alto, el producto puede no estar listo.
+
+Las métricas deben interpretarse junto con:
+
+- riesgos
+- severidad
+- alcance
+- cobertura
+- exit criteria
+
+---
+
+## Ejemplo 5 — Defect Management
+
+Durante una prueba se obtiene HTTP 500.
+
+Antes de concluir que existe un defecto del producto deben descartarse causas como:
+
+- datos incorrectos
+- error de ambiente
+- script de automatización
+- misunderstanding del requisito
+
+Después se crea el defect report si corresponde.
+
+---
+
+## Ejemplo 6 — Cost of Quality
+
+### Prevention
+Review temprano de requisitos.
+
+### Appraisal
+Ejecución de pruebas.
+
+### Internal Failure
+Bug encontrado y corregido en QA.
+
+### External Failure
+Bug encontrado por un cliente en producción.
+
+---
+
+# 7. Conceptos para repaso rápido
+
+## Planning
+Definir cómo alcanzar los objetivos de testing.
+
+## Monitoring
+Medir y observar el progreso.
+
+## Control
+Actuar ante desviaciones.
+
+## Completion
+Cerrar, archivar, comunicar y aprender.
+
+## Risk-Based Testing
+Priorizar testing según riesgo.
+
+## Likelihood
+Probabilidad de ocurrencia.
+
+## Impact
+Consecuencia si el riesgo ocurre.
+
+## Test Strategy
+Dirección general del testing.
+
+## Test Approach
+Forma concreta de implementar el testing.
+
+## SMART
+Método para definir objetivos medibles.
+
+## IDEAL
+Modelo de mejora continua.
+
+## Metrics
+Indicadores para evaluar progreso y objetivos.
+
+## Test Estimation
+Estimación del esfuerzo requerido para testing.
+
+## Defect Management
+Proceso para registrar, analizar, priorizar, corregir y cerrar anomalías o defectos.
+
+## Professional Competence
+Skills especializados.
+
+## Methodological Competence
+Capacidad analítica y conceptual.
+
+## Social Competence
+Capacidad de comunicación y colaboración.
+
+## Personal Competence
+Autogestión y desarrollo personal.
+
+## Motivators
+Factores que pueden generar satisfacción.
+
+## Hygiene Factors
+Factores cuya ausencia puede desmotivar.
+
+## Prevention Cost
+Costo de prevenir defectos.
+
+## Appraisal Cost
+Costo de detectar defectos.
+
+## Internal Failure Cost
+Costo de defectos antes de entrega.
+
+## External Failure Cost
+Costo de defectos después de entrega.
+
+---
+
+# 8. Prioridades de estudio
+
+## Muy importante
+
+- Planning vs Monitoring vs Control vs Completion
+- Risk-Based Testing
+- Likelihood + Impact
+- Product Risk vs Project Risk
+- Stakeholders
+- Test Strategy vs Test Approach
+- SMART
+- IDEAL
+- Metrics
+- Estimation techniques
+- Defect Management
+- Cost of Quality
+
+## Importante
+
+- Hybrid SDLC
+- Test Levels
+- Test Types
+- Tool Selection
+- Tool Lifecycle
+- Four Areas of Competence
+- Motivators vs Hygiene Factors
+- Agile / Hybrid Defect Management
+
+---
+
+# 9. Learning Objectives resumidos
+
+## Chapter 1
+
+Debes poder:
+
+- resumir Planning, Monitoring, Control y Completion
+- comparar intereses de stakeholders
+- explicar testing en modelos híbridos
+- comparar actividades según SDLC
+- comparar test levels y test types
+- analizar actividades de gestión para un proyecto
+- explicar Risk-Based Testing
+- identificar riesgos
+- evaluar likelihood e impact
+- seleccionar mitigaciones
+- diferenciar Heavyweight y Lightweight RBT
+- seleccionar un Test Approach
+- definir objetivos SMART
+- aplicar IDEAL
+- participar en retrospectives
+- analizar selección de herramientas
+
+## Chapter 2
+
+Debes poder:
+
+- elegir métricas apropiadas
+- usar métricas para controlar progreso
+- analizar resultados y preparar reports
+- explicar factores de estimación
+- seleccionar técnicas de estimación
+- implementar defect workflow
+- explicar Defect Management en Agile
+- explicar retos en Hybrid
+- definir información útil en defect reports
+- usar estadísticas de defectos para process improvement
+
+## Chapter 3
+
+Debes poder:
+
+- identificar skills en las cuatro áreas de competencia
+- analizar skills requeridos por contexto
+- evaluar gaps
+- desarrollar skills
+- explicar management skills
+- diferenciar motivators y hygiene factors
+- clasificar Cost of Quality
+- aplicar una evaluación costo-beneficio del testing
+
+---
+
+# 10. Mensaje final del resumen
+
+Un Test Manager no se limita a coordinar ejecución.
+
+Debe ser capaz de:
+
+- entender el contexto
+- identificar riesgos
+- definir estrategia
+- planificar
+- medir
+- controlar
+- comunicar
+- estimar
+- gestionar defectos
+- mejorar procesos
+- seleccionar herramientas
+- desarrollar al equipo
+- demostrar el valor del testing
+
+La idea central de este nivel es pasar de:
+
+**“ejecutar pruebas”**
+
+a:
+
+**“gestionar el testing para tomar mejores decisiones sobre calidad, riesgo y negocio”.**</script>
+<script type="application/json" id="questions-json">{"title":"ISTQB CTAL Test Management v3.0 - Question Bank","version":"1.0","totalQuestions":50,"questions":[{"id":1,"chapter":1,"topic":"Test Planning","level":"K3","difficulty":"medium-high","question":"Un proyecto bancario inicia una nueva integración con un tercero. El Test Manager conoce los objetivos generales, pero todavía no se han confirmado los ambientes, los datos ni la disponibilidad del proveedor. ¿Cuál es la acción más apropiada durante Test Planning?","options":{"A":"Esperar hasta que todos los detalles estén definidos antes de iniciar cualquier planificación.","B":"Elaborar una planificación inicial con los supuestos conocidos y actualizarla conforme se confirme el contexto.","C":"Definir únicamente los casos de prueba y dejar los recursos para el final.","D":"Iniciar ejecución exploratoria para obtener información antes de planificar."},"correctAnswer":"B","explanation":"La planificación debe iniciar temprano y ajustarse de forma iterativa. No es necesario esperar a que todos los detalles estén cerrados para comenzar a planificar."},{"id":2,"chapter":1,"topic":"Test Monitoring vs Test Control","level":"K3","difficulty":"medium-high","question":"Durante una iteración se observa que 18 de 60 pruebas están bloqueadas por un ambiente inestable. El Test Manager registra el dato en el reporte diario y posteriormente decide mover temporalmente a dos QA hacia pruebas API no dependientes del ambiente afectado. ¿Qué representa la segunda acción?","options":{"A":"Test Monitoring","B":"Test Analysis","C":"Test Control","D":"Test Completion"},"correctAnswer":"C","explanation":"Registrar el bloqueo corresponde a Monitoring; reasignar recursos para responder a la desviación corresponde a Control."},{"id":3,"chapter":1,"topic":"Test Completion","level":"K2","difficulty":"medium","question":"Una release terminó con todos los casos críticos ejecutados, pero existen defectos medios aceptados para producción. ¿Cuál actividad forma parte de Test Completion?","options":{"A":"Eliminar los defectos aceptados para evitar que afecten las métricas.","B":"Reiniciar la ejecución de todos los casos para confirmar el cierre.","C":"Crear un nuevo plan de pruebas completo para la siguiente release.","D":"Comunicar los defectos conocidos, archivar el testware relevante y generar el reporte de cierre."},"correctAnswer":"D","explanation":"Test Completion incluye reporte final, archivo de testware, handover de información relevante y lessons learned."},{"id":4,"chapter":1,"topic":"Stakeholders","level":"K4","difficulty":"high","question":"En un proyecto, el Product Owner revisa diariamente resultados y decide prioridades. Un director de área controla el presupuesto, pero rara vez participa en el detalle operativo. ¿Cómo deberían clasificarse principalmente?","options":{"A":"Product Owner = Promoter; Director = Latent","B":"Product Owner = Defender; Director = Promoter","C":"Product Owner = Latent; Director = Apathetic","D":"Product Owner = Promoter; Director = Defender"},"correctAnswer":"A","explanation":"El Product Owner combina alto interés y alta influencia. El director tiene alta influencia pero bajo interés operativo, por lo que encaja como Latent."},{"id":5,"chapter":1,"topic":"Hybrid Software Development","level":"K4","difficulty":"high","question":"Un banco utiliza planificación secuencial para requisitos regulatorios, pero desarrollo y testing se realizan en sprints. El Test Manager detecta que las evidencias regulatorias se preparan solo al final, generando retrabajo. ¿Cuál es la mejor acción?","options":{"A":"Eliminar la documentación regulatoria porque el equipo trabaja en Agile.","B":"Tratar las obligaciones regulatorias como parte del enfoque híbrido e integrarlas desde las iteraciones.","C":"Mantener completamente separados ambos modelos para evitar interferencias.","D":"Sustituir Scrum por un modelo totalmente secuencial."},"correctAnswer":"B","explanation":"En un modelo híbrido, las prácticas deben coordinarse. Las necesidades regulatorias no desaparecen por utilizar Agile y deben integrarse en la gestión del testing."},{"id":6,"chapter":1,"topic":"Sequential vs Iterative","level":"K2","difficulty":"medium","question":"¿Cuál combinación describe mejor una diferencia típica entre un modelo secuencial y uno iterativo?","options":{"A":"Secuencial: testing continuo; Iterativo: testing al final.","B":"Secuencial: sin automatización; Iterativo: solo pruebas automatizadas.","C":"Secuencial: reporting por hitos; Iterativo: reporting más continuo.","D":"Secuencial: sin Test Manager; Iterativo: Test Manager obligatorio."},"correctAnswer":"C","explanation":"El syllabus contrasta reporting más orientado a hitos en modelos secuenciales con reporting más continuo en modelos iterativos."},{"id":7,"chapter":1,"topic":"Test Levels","level":"K3","difficulty":"medium-high","question":"Un producto presenta alto riesgo en la integración con un servicio externo. ¿En qué nivel debería el Test Manager reforzar especialmente alcance, objetivos y seguimiento?","options":{"A":"System Integration Testing","B":"Solo Component Testing","C":"Solo Acceptance Testing","D":"Únicamente Static Testing"},"correctAnswer":"A","explanation":"System Integration Testing se orienta a validar interacciones entre sistemas y debe alinearse con los riesgos de integración."},{"id":8,"chapter":1,"topic":"Test Types","level":"K3","difficulty":"medium-high","question":"Un sistema cumple funcionalmente, pero negocio exige que responda en menos de dos segundos bajo carga. ¿Qué enfoque de gestión corresponde principalmente?","options":{"A":"White-box testing management","B":"Functional testing management","C":"Black-box testing management","D":"Non-functional testing management"},"correctAnswer":"D","explanation":"Performance es una característica no funcional y requiere criterios, ambientes y recursos específicos."},{"id":9,"chapter":1,"topic":"Risk-Based Testing","level":"K4","difficulty":"high","question":"Se identifican tres riesgos:\n\n- R1: error de etiqueta, likelihood alta, impact bajo.\n- R2: doble débito, likelihood media, impact crítico.\n- R3: lentitud en pantalla secundaria, likelihood media, impact medio.\n\nHay tiempo para intensificar solo una línea de pruebas. ¿Cuál debería priorizarse?","options":{"A":"R1, porque tiene mayor likelihood.","B":"R2, porque el nivel de riesgo combina likelihood e impact.","C":"R3, porque tiene likelihood e impact equilibrados.","D":"R1 y R3 por igual, porque ambos ocurren con más frecuencia."},"correctAnswer":"B","explanation":"El nivel de riesgo depende de likelihood e impact. Un impacto crítico puede justificar mayor prioridad aun con likelihood media."},{"id":10,"chapter":1,"topic":"Risk Identification","level":"K3","difficulty":"medium-high","question":"El Test Manager organiza una sesión de identificación de riesgos, pero solo invita a QA y desarrollo. Posteriormente negocio identifica un riesgo crítico de impacto financiero que nadie había considerado. ¿Qué problema se evidencia?","options":{"A":"Se usó una técnica demasiado formal.","B":"La sesión debió limitarse a riesgos técnicos.","C":"Faltó representación adecuada de stakeholders relevantes.","D":"El riesgo debía descubrirse únicamente durante ejecución."},"correctAnswer":"C","explanation":"La identificación de riesgos debe involucrar una muestra amplia de stakeholders relevantes para evitar omisiones significativas."},{"id":11,"chapter":1,"topic":"Quality Risk Assessment","level":"K4","difficulty":"high","question":"Un equipo intenta asignar valores monetarios exactos al impacto de todos los riesgos, pero no dispone de datos históricos confiables. ¿Qué enfoque es más apropiado?","options":{"A":"Utilizar una evaluación cualitativa con escalas ordinales de likelihood e impact.","B":"Inventar valores promedio para poder multiplicarlos.","C":"Eliminar el análisis de impacto y usar solo likelihood.","D":"Usar únicamente número de casos de prueba como indicador de riesgo."},"correctAnswer":"A","explanation":"Cuando no existen datos estadísticos suficientes, el syllabus permite una evaluación cualitativa basada en escalas como High, Medium y Low."},{"id":12,"chapter":1,"topic":"Risk Likelihood","level":"K2","difficulty":"medium","question":"¿Cuál factor está más relacionado con la likelihood de un quality risk?","options":{"A":"Daño reputacional potencial.","B":"Pérdida de ingresos por fallo.","C":"Criticidad del objetivo de negocio.","D":"Alta tasa de cambios en requisitos y personal."},"correctAnswer":"D","explanation":"La tasa de cambios, la complejidad, la madurez y los skills influyen en likelihood. Daño reputacional y pérdidas se relacionan más con impact."},{"id":13,"chapter":1,"topic":"Risk Impact","level":"K2","difficulty":"medium","question":"¿Cuál elemento influye principalmente en el impact de un riesgo?","options":{"A":"Madurez del equipo.","B":"Daño reputacional y pérdida de ingresos.","C":"Complejidad de la arquitectura.","D":"Disponibilidad del personal."},"correctAnswer":"B","explanation":"Impact considera consecuencias como reputación, ingresos, sanciones, seguridad y criticidad del negocio."},{"id":14,"chapter":1,"topic":"Risk Mitigation","level":"K4","difficulty":"high","question":"Una funcionalidad crítica presenta riesgo alto. El equipo tiene un QA Senior, dos QA Mid y tiempo limitado. ¿Cuál distribución es más coherente con Risk-Based Testing?","options":{"A":"Asignar al QA Senior a los elementos de mayor riesgo y usar técnicas más rigurosas allí.","B":"Distribuir el esfuerzo exactamente igual entre todas las funcionalidades.","C":"Asignar al QA Senior a los casos más simples para acelerar ejecución.","D":"Postergar la funcionalidad crítica hasta el final para tener más información."},"correctAnswer":"A","explanation":"Los elementos de mayor riesgo deben recibir mayor rigor, atención temprana y personal con las capacidades más fuertes."},{"id":15,"chapter":1,"topic":"Heavyweight vs Lightweight RBT","level":"K3","difficulty":"medium-high","question":"Un sistema de soporte vital requiere análisis formal, documentación detallada y participación amplia de stakeholders. ¿Qué enfoque encaja mejor?","options":{"A":"Lightweight Risk-Based Testing.","B":"Exploratory Testing como único enfoque.","C":"Heavyweight Risk-Based Testing.","D":"Planning Poker."},"correctAnswer":"C","explanation":"Los contextos safety-critical suelen requerir técnicas heavyweight, con mayor formalidad y profundidad."},{"id":16,"chapter":1,"topic":"Heavyweight RBT Techniques","level":"K2","difficulty":"medium","question":"¿Cuál técnica pertenece a los ejemplos heavyweight mencionados en el syllabus?","options":{"A":"Planning Poker","B":"Wideband Delphi","C":"PRAM","D":"Failure Mode and Effects Analysis (FMEA)"},"correctAnswer":"D","explanation":"FMEA, Hazard Analysis, Cost of Exposure y Fault Tree Analysis son ejemplos heavyweight."},{"id":17,"chapter":1,"topic":"Test Strategy vs Test Approach","level":"K3","difficulty":"medium-high","question":"Una organización define que las pruebas se priorizarán según riesgo. Para un proyecto concreto se decide usar API testing automatizado, regresión UI y pruebas exploratorias. ¿Cuál afirmación es correcta?","options":{"A":"La priorización por riesgo es parte de la estrategia; las técnicas concretas forman parte del approach.","B":"Ambas decisiones son únicamente Test Completion.","C":"La automatización es siempre estrategia y no approach.","D":"La estrategia solo existe a nivel organizacional."},"correctAnswer":"A","explanation":"Strategy define la dirección general; Approach concreta niveles, tipos, técnicas y prácticas."},{"id":18,"chapter":1,"topic":"SMART Objectives","level":"K3","difficulty":"medium-high","question":"¿Cuál objetivo está mejor formulado según SMART?","options":{"A":"Probar muy bien las funcionalidades críticas.","B":"Mejorar la calidad antes de producción.","C":"Ejecutar todos los tests asociados a riesgos altos antes del cierre de la iteración y cumplir los exit criteria definidos.","D":"Reducir defectos tanto como sea posible."},"correctAnswer":"C","explanation":"El objetivo debe ser específico, medible, alcanzable, relevante y limitado en el tiempo."},{"id":19,"chapter":1,"topic":"Exit Criteria","level":"K4","difficulty":"high","question":"Un equipo define como exit criterion “calidad aceptable”. Durante el cierre hay discusión porque nadie sabe si se cumplió. ¿Cuál es la mejor corrección?","options":{"A":"Mantenerlo porque negocio puede decidir subjetivamente.","B":"Reemplazarlo por criterios medibles relacionados con test objectives.","C":"Sustituirlo por “100% de casos passed” en todos los proyectos.","D":"Eliminar exit criteria para evitar ambigüedad."},"correctAnswer":"B","explanation":"Los exit criteria deben ser medibles y vinculados con los objetivos de prueba; no existe una regla universal como “100% passed”."},{"id":20,"chapter":1,"topic":"IDEAL","level":"K3","difficulty":"medium-high","question":"Después de una retrospectiva se concluye que la preparación tardía de datos es la principal causa de bloqueos. El equipo ya diagnosticó el problema y ahora define responsables, fechas y acciones para corregirlo. ¿Qué fase de IDEAL corresponde?","options":{"A":"Initiating","B":"Diagnosing","C":"Establishing","D":"Learning"},"correctAnswer":"C","explanation":"Establishing consiste en definir el plan concreto de mejora una vez diagnosticada la situación."},{"id":21,"chapter":1,"topic":"Retrospectives","level":"K4","difficulty":"high","question":"En tres iteraciones consecutivas se reporta “ambiente inestable”, pero nunca se genera una acción específica. ¿Cuál es la debilidad principal de la retrospectiva?","options":{"A":"Se está utilizando demasiado pronto.","B":"Se limita a identificar problemas sin convertirlos en acciones de mejora.","C":"Debería enfocarse solo en defectos de código.","D":"Las retrospectivas no deben tratar ambientes."},"correctAnswer":"B","explanation":"Una retrospectiva útil debe traducir hallazgos en acciones concretas y verificables de mejora."},{"id":22,"chapter":1,"topic":"Tool Selection","level":"K4","difficulty":"high","question":"Un equipo propone migrar de Selenium a otra herramienta porque “es más moderna”. ¿Qué debería solicitar primero el Test Manager?","options":{"A":"Una evaluación de compatibilidad, costos, beneficios, riesgos, skills e integración.","B":"La eliminación inmediata del framework actual.","C":"Aprobar la migración porque las herramientas nuevas siempre reducen mantenimiento.","D":"Comparar únicamente la velocidad de ejecución."},"correctAnswer":"A","explanation":"La selección de herramientas debe considerar factores técnicos y de negocio, además de riesgos, costos y beneficios."},{"id":23,"chapter":1,"topic":"Tool Lifecycle","level":"K3","difficulty":"medium-high","question":"Un vendor anuncia el fin de soporte de una herramienta utilizada por el equipo. ¿Qué aspecto del Tool Lifecycle cobra mayor importancia?","options":{"A":"Risk Identification del producto.","B":"Retirement y preservación/migración de datos.","C":"Component Testing.","D":"Defect Prevention."},"correctAnswer":"B","explanation":"En retirement deben considerarse reemplazo, preservación, archivo y migración de datos."},{"id":24,"chapter":1,"topic":"Tool Metrics","level":"K3","difficulty":"medium-high","question":"¿Qué herramienta es la más apropiada para proporcionar directamente información como response time y failure rate bajo carga?","options":{"A":"Requirements management tool","B":"Defect management tool","C":"Static analysis tool","D":"Performance testing tool"},"correctAnswer":"D","explanation":"Las herramientas de performance proporcionan métricas de comportamiento bajo carga, como tiempos de respuesta y tasas de fallo."},{"id":25,"chapter":1,"topic":"RBT Success Metrics","level":"K4","difficulty":"high","question":"Al revisar la efectividad de Risk-Based Testing, el equipo detecta que varios tests omitidos correspondían a riesgos más altos que muchos tests ejecutados. ¿Qué indica esto?","options":{"A":"La priorización basada en riesgo no se aplicó correctamente.","B":"El RBT fue exitoso porque se ejecutaron más tests.","C":"Los riesgos altos deben omitirse para reducir costo.","D":"El problema pertenece únicamente a Test Completion."},"correctAnswer":"A","explanation":"Una señal esperada de RBT efectivo es que las pruebas omitidas tengan menor riesgo que las ejecutadas."},{"id":26,"chapter":2,"topic":"Project / Product / Process Metrics","level":"K3","difficulty":"medium-high","question":"¿Cuál combinación clasifica mejor las métricas?","options":{"A":"% tests executed = Product; defect density = Project; test efficiency = Product.","B":"% tests executed = Project; defect density = Product; test efficiency = Process.","C":"% tests executed = Process; defect density = Project; test efficiency = Product.","D":"Todas son Project Metrics."},"correctAnswer":"B","explanation":"El progreso corresponde a Project Metrics; atributos del producto a Product Metrics; efectividad/eficiencia a Process Metrics."},{"id":27,"chapter":2,"topic":"Metrics Interpretation","level":"K4","difficulty":"high","question":"Un dashboard muestra 96% Passed. El 4% fallido corresponde a dos pruebas de transferencias de riesgo alto. ¿Cuál es la interpretación más apropiada?","options":{"A":"El producto está listo porque supera 95% Passed.","B":"El porcentaje no es suficiente; debe analizarse junto con riesgos, severidad y exit criteria.","C":"El 4% puede ignorarse por ser pequeño.","D":"Solo debe revisarse si existen defectos críticos en producción."},"correctAnswer":"B","explanation":"Las métricas deben interpretarse en contexto. Un porcentaje alto puede ocultar fallos importantes en áreas de alto riesgo."},{"id":28,"chapter":2,"topic":"Monitoring / Control Metrics","level":"K3","difficulty":"medium-high","question":"¿Cuál métrica es particularmente útil durante Monitoring y Control para detectar desviaciones del plan?","options":{"A":"Actual vs planned estimation in hours.","B":"Número total de reuniones realizadas.","C":"Cantidad de documentos generados.","D":"Número de personas del equipo."},"correctAnswer":"A","explanation":"Comparar esfuerzo real contra estimado permite identificar desviaciones y aplicar acciones de control."},{"id":29,"chapter":2,"topic":"Test Reporting","level":"K4","difficulty":"high","question":"¿Cuál reporte aporta más valor a un stakeholder que debe decidir sobre una release?","options":{"A":"“420 Passed, 18 Failed.”","B":"“Se ejecutó el 95% del alcance; 3 de los 18 fallos afectan riesgos altos y dos exit criteria aún no se cumplen.”","C":"“Se ejecutaron muchas pruebas esta semana.”","D":"“QA recomienda esperar porque todavía hay bugs.”"},"correctAnswer":"B","explanation":"El reporte debe traducir datos en información útil para decidir, vinculando resultados, riesgos y criterios."},{"id":30,"chapter":2,"topic":"Test Estimation","level":"K4","difficulty":"high","question":"Un equipo calcula 16 horas porque 80 casos tardan 12 minutos cada uno. Sin embargo, requiere preparar datos manualmente, ejecutar regresión y hacer re-testing. ¿Cuál es el problema principal?","options":{"A":"La estimación solo considera ejecución y omite otras actividades necesarias.","B":"Doce minutos por caso nunca es una medida válida.","C":"La estimación debería basarse únicamente en defectos históricos.","D":"La regresión no debe incluirse en estimaciones."},"correctAnswer":"A","explanation":"La estimación debe considerar el conjunto de actividades de testing y factores del contexto, no solo tiempo de ejecución."},{"id":31,"chapter":2,"topic":"Estimation Technique Selection","level":"K4","difficulty":"high","question":"Un proyecto nuevo tiene alta complejidad, poca información histórica y varios expertos disponibles. ¿Qué enfoque es más apropiado?","options":{"A":"Solo ratio-based estimation.","B":"Solo extrapolation.","C":"Una técnica basada en expertos, como Wideband Delphi.","D":"Estimar únicamente por número de casos."},"correctAnswer":"C","explanation":"Con alta complejidad y pocos datos históricos, las técnicas expert-based son más adecuadas."},{"id":32,"chapter":2,"topic":"Three-Point Estimation","level":"K3","difficulty":"medium-high","question":"¿Por qué Three-Point Estimation es útil frente a una única estimación?","options":{"A":"Elimina completamente la incertidumbre.","B":"Utiliza optimistic, most likely y pessimistic para representar incertidumbre.","C":"No requiere conocimiento del trabajo.","D":"Solo puede utilizarse en Agile."},"correctAnswer":"B","explanation":"La técnica incorpora distintos escenarios de esfuerzo y permite representar la variabilidad de la estimación."},{"id":33,"chapter":2,"topic":"Ratio-Based Estimation","level":"K3","difficulty":"medium-high","question":"¿En qué contexto tiene más sentido utilizar ratio-based estimation?","options":{"A":"Cuando existen datos históricos confiables de proyectos similares.","B":"Cuando no existe información histórica ni expertos.","C":"Cuando el proyecto es completamente desconocido y altamente innovador.","D":"Solo cuando se utiliza Scrum."},"correctAnswer":"A","explanation":"Ratio-based estimation depende de relaciones obtenidas de información histórica relevante y confiable."},{"id":34,"chapter":2,"topic":"Planning Poker vs Wideband Delphi","level":"K3","difficulty":"medium-high","question":"Un equipo Agile necesita estimar trabajo durante planificación de iteración. ¿Qué técnica encaja mejor con el contexto según el syllabus?","options":{"A":"Fault Tree Analysis","B":"Planning Poker","C":"FMEA","D":"Hazard Analysis"},"correctAnswer":"B","explanation":"Planning Poker es una técnica basada en el equipo ampliamente adecuada para contextos Agile."},{"id":35,"chapter":2,"topic":"Defect Lifecycle","level":"K4","difficulty":"high","question":"Una prueba automatizada falla. Antes de crear un defecto del producto se descubre que el script tenía un selector incorrecto. ¿Qué principio demuestra este caso?","options":{"A":"Todo test fallido debe generar un defecto.","B":"Una anomalía requiere investigación porque no siempre implica un defecto del producto.","C":"Los fallos de automatización son External Failures.","D":"Los scripts no forman parte del proceso de defect management."},"correctAnswer":"B","explanation":"Una discrepancia observada puede originarse en producto, ambiente, datos, automatización o interpretación; debe investigarse."},{"id":36,"chapter":2,"topic":"Cross-Functional Defect Management","level":"K4","difficulty":"high","question":"Un equipo utiliza una buena herramienta de defectos, pero desarrollo y QA casi no conversan. Los defectos permanecen días sin clarificación. ¿Cuál es la mejor conclusión?","options":{"A":"La herramienta debería sustituirse.","B":"La comunicación es innecesaria si el workflow está configurado.","C":"La herramienta no sustituye una comunicación efectiva entre participantes.","D":"El problema pertenece solo al Product Owner."},"correctAnswer":"C","explanation":"Effective Defect Management requiere comunicación, herramienta adecuada, workflow y participación de los stakeholders."},{"id":37,"chapter":2,"topic":"Agile Defect Management","level":"K4","difficulty":"high","question":"En un equipo Agile co-located se detecta un defecto que puede corregirse inmediatamente en la misma iteración. ¿Qué enfoque es coherente con el syllabus?","options":{"A":"Siempre debe existir un defect report formal antes de corregirlo.","B":"Puede gestionarse de forma ligera si el contexto lo permite y el acuerdo del equipo está definido.","C":"Debe esperar a la siguiente iteración.","D":"Debe escalarse al comité de defectos."},"correctAnswer":"B","explanation":"En Agile, Defect Management puede ser menos formal. El nivel de formalidad depende del contexto y de los acuerdos del equipo."},{"id":38,"chapter":2,"topic":"Hybrid Defect Management","level":"K4","difficulty":"high","question":"Un equipo Agile usa Jira y un proveedor secuencial usa otra herramienta. Los defectos críticos no se reflejan a tiempo entre equipos. ¿Qué acción es más apropiada?","options":{"A":"Mantener los sistemas totalmente independientes.","B":"Pedir que QA copie manualmente todo al final de cada sprint.","C":"Establecer alineación de atributos y sincronización entre herramientas, preferiblemente automatizada.","D":"Eliminar el seguimiento de defectos del proveedor."},"correctAnswer":"C","explanation":"En contextos híbridos, uno de los retos clave es alinear atributos, herramientas y visibilidad de defectos entre equipos."},{"id":39,"chapter":2,"topic":"Defect Report Information","level":"K3","difficulty":"medium-high","question":"¿Cuál conjunto representa información fundamental para gestionar un defecto?","options":{"A":"Título, descripción, pasos, severity y priority.","B":"Nombre del sprint, cantidad de testers y presupuesto.","C":"Únicamente screenshot y severity.","D":"Únicamente título y responsable."},"correctAnswer":"A","explanation":"El syllabus destaca título, descripción detallada, pasos para reproducir, severity y priority como información esencial."},{"id":40,"chapter":2,"topic":"Defect Data for Process Improvement","level":"K4","difficulty":"high","question":"Durante varios meses aumenta el porcentaje de defectos reabiertos. ¿Cuál análisis es más útil?","options":{"A":"Evaluar la calidad de las correcciones/debugging y buscar causas recurrentes.","B":"Eliminar el estado Reopened del workflow.","C":"Cerrar automáticamente defectos después del primer fix.","D":"Medir únicamente cuántos casos fueron ejecutados."},"correctAnswer":"A","explanation":"La información sobre reopened defects puede utilizarse para evaluar la calidad del debugging y detectar oportunidades de mejora."},{"id":41,"chapter":3,"topic":"Four Areas of Competence","level":"K3","difficulty":"medium-high","question":"Un QA domina técnicas de prueba y APIs, pero presenta dificultad para manejar conflictos dentro del equipo. ¿Qué área de competencia necesita principalmente fortalecer?","options":{"A":"Professional competence","B":"Methodological competence","C":"Social competence","D":"Personal competence"},"correctAnswer":"C","explanation":"Conflict management, comunicación y cooperación pertenecen principalmente a Social Competence."},{"id":42,"chapter":3,"topic":"Professional Competence","level":"K2","difficulty":"medium","question":"¿Cuál ejemplo corresponde principalmente a Professional Competence?","options":{"A":"Conocimiento de test techniques y dominio de negocio.","B":"Capacidad de recibir críticas.","C":"Resolución de conflictos interpersonales.","D":"Adaptabilidad social."},"correctAnswer":"A","explanation":"Professional Competence incluye conocimientos especializados, técnicas de testing, tecnología y dominio de negocio."},{"id":43,"chapter":3,"topic":"Required Skills","level":"K4","difficulty":"high","question":"Un proyecto requiere API testing, performance y conocimiento bancario. El equipo tiene experiencia fuerte en API y banca, pero nadie domina performance. ¿Cuál es la respuesta más apropiada?","options":{"A":"Ignorar performance porque el equipo actual no tiene el skill.","B":"Ejecutar performance con cualquier QA sin preparación.","C":"Identificar el gap y cubrirlo mediante desarrollo de skills o apoyo externo.","D":"Reemplazar a todo el equipo."},"correctAnswer":"C","explanation":"La gestión debe comparar skills requeridos contra disponibles y cerrar gaps mediante training, desarrollo o expertos externos."},{"id":44,"chapter":3,"topic":"Methodological Competence","level":"K3","difficulty":"medium-high","question":"Un QA debe analizar una historia ambigua, identificar riesgos y decidir qué información necesita antes de diseñar pruebas. ¿Qué competencia resulta especialmente relevante?","options":{"A":"Social competence","B":"Methodological competence","C":"Hygiene factor","D":"External failure competence"},"correctAnswer":"B","explanation":"Analytical, conceptual y judgment skills forman parte de Methodological Competence."},{"id":45,"chapter":3,"topic":"Personal Competence","level":"K3","difficulty":"medium-high","question":"Un Test Lead técnicamente fuerte tiene problemas para delegar, aceptar feedback y adaptarse a cambios. ¿Qué área debería desarrollar principalmente?","options":{"A":"Professional competence","B":"Social competence","C":"Personal competence","D":"Appraisal competence"},"correctAnswer":"C","explanation":"Delegación, capacidad de recibir críticas, resiliencia y apertura al cambio son ejemplos de Personal Competence."},{"id":46,"chapter":3,"topic":"Motivators vs Hygiene Factors","level":"K4","difficulty":"high","question":"El equipo recibe reconocimiento, autonomía y oportunidades de crecimiento, pero trabaja con ambientes extremadamente inestables y objetivos poco realistas. ¿Qué interpretación es más adecuada?","options":{"A":"Los motivators compensan completamente cualquier problema de condiciones.","B":"Los ambientes y objetivos poco realistas son hygiene factors cuya ausencia puede desmotivar.","C":"La autonomía es un hygiene factor.","D":"El reconocimiento es un external failure cost."},"correctAnswer":"B","explanation":"Condiciones de trabajo y objetivos realistas pertenecen a Hygiene Factors. Su ausencia puede producir desmotivación aunque existan motivators."},{"id":47,"chapter":3,"topic":"Cost of Quality","level":"K3","difficulty":"medium-high","question":"Clasifique correctamente las siguientes actividades:\n\n1. Training de desarrolladores en secure coding.\n2. Ejecución de pruebas.\n3. Corrección de un bug encontrado en QA.\n4. Hotfix por defecto detectado en producción.","options":{"A":"Prevention, Appraisal, Internal Failure, External Failure","B":"Appraisal, Prevention, External Failure, Internal Failure","C":"Prevention, Internal Failure, Appraisal, External Failure","D":"Appraisal, Appraisal, Internal Failure, Prevention"},"correctAnswer":"A","explanation":"Training previene; testing detecta; corregir antes de release es Internal Failure; corregir después de release es External Failure."},{"id":48,"chapter":3,"topic":"Prevention vs Appraisal","level":"K3","difficulty":"medium-high","question":"¿Cuál actividad es un Prevention Cost y no un Appraisal Cost?","options":{"A":"Dynamic Testing","B":"Revisar tempranamente el test basis para prevenir problemas posteriores.","C":"Ejecutar regresión.","D":"Analizar resultados de performance."},"correctAnswer":"B","explanation":"Prevention busca evitar problemas antes de que ocurran; Appraisal busca detectarlos mediante evaluación o testing."},{"id":49,"chapter":3,"topic":"Cost-Benefit of Testing","level":"K4","difficulty":"high","question":"Un stakeholder propone duplicar indefinidamente el esfuerzo de testing “para asegurar calidad”. ¿Qué respuesta está más alineada con el syllabus?","options":{"A":"Más testing siempre produce mejor retorno.","B":"El objetivo es encontrar un equilibrio donde el beneficio esperado justifique el costo y el riesgo residual.","C":"El testing debe detenerse al alcanzar 50% de cobertura.","D":"El costo no debe considerarse en decisiones de calidad."},"correctAnswer":"B","explanation":"El syllabus plantea que tanto testing insuficiente como excesivo pueden ser perjudiciales; debe buscarse un equilibrio costo-beneficio."},{"id":50,"chapter":3,"topic":"Integrated Test Management Decision","level":"K4","difficulty":"high","question":"Un proyecto regulado tiene deadline cercano, defectos críticos en una integración de alto riesgo, un ambiente inestable y solo un QA Senior disponible. ¿Cuál respuesta combina mejor los principios de Test Management?","options":{"A":"Mantener el plan original para no afectar el cronograma.","B":"Ejecutar primero todos los casos fáciles para elevar el porcentaje de avance.","C":"Repriorizar según riesgo, asignar al QA Senior al área crítica, ajustar el plan y comunicar el impacto a stakeholders.","D":"Suspender todo testing hasta estabilizar completamente el ambiente."},"correctAnswer":"C","explanation":"La respuesta combina Risk-Based Testing, asignación de skills, Test Control y comunicación con stakeholders frente a una desviación real."}]}</script>
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // ---------- Persistencia local (solo comodidad; la página funciona sin ella) ----------
+  const store = (() => {
+    const KEY = 'ctaltm-estudio-v1';
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { data = {}; }
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { /* sin almacenamiento */ } };
+    return {
+      get: (k, d) => (Object.prototype.hasOwnProperty.call(data, k) ? data[k] : d),
+      set: (k, v) => { data[k] = v; save(); },
+    };
+  })();
+
+  // ---------- Tema ----------
+  const root = document.documentElement;
+  const applyTheme = (t) => { if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme'); drawThemeIcon(); };
+  const isDark = () => {
+    const t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+  };
+  function drawThemeIcon() {
+    const icon = $('#theme-icon');
+    if (!icon) return;
+    icon.innerHTML = isDark()
+      ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+      : '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
+    $('#theme-btn').setAttribute('aria-label', isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+  }
+  applyTheme(store.get('theme', null));
+  $('#theme-btn').addEventListener('click', () => { const next = isDark() ? 'light' : 'dark'; applyTheme(next); store.set('theme', next); });
+  if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawThemeIcon); } catch (e) {} }
+
+  // ---------- Utilidades de texto ----------
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const plain = (s) => s.replace(/\*\*/g, '').replace(/`/g, '').replace(/^[#>|\-\s]+/gm, ' ').replace(/\|/g, ' ');
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  // ---------- Parser del resumen (contenido literal del MD) ----------
+  function parseTable(rows) {
+    const cells = (r) => r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+    const head = cells(rows[0]);
+    const align = cells(rows[1]).map((c) => (/:$/.test(c) ? 'right' : 'left'));
+    return { t: 'table', head, align, rows: rows.slice(2).map(cells) };
+  }
+  function parseBlocks(lines) {
+    const out = [];
+    const special = (l) => /^(#{2,6} |\||>|- |\d+\. )/.test(l) || /^---\s*$/.test(l);
+    let i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      let m;
+      if (!l.trim() || /^---\s*$/.test(l)) { i++; continue; }
+      if ((m = l.match(/^(#{2,6}) (.+)$/))) { out.push({ t: 'h', level: m[1].length, text: m[2].trim() }); i++; continue; }
+      if (l.startsWith('|')) { const r = []; while (i < lines.length && lines[i].startsWith('|')) r.push(lines[i++]); out.push(parseTable(r)); continue; }
+      if (l.startsWith('>')) { const q = []; while (i < lines.length && lines[i].startsWith('>')) q.push(lines[i++].replace(/^> ?/, '').trim()); out.push({ t: 'quote', lines: q.filter(Boolean) }); continue; }
+      if (/^- /.test(l)) { const it = []; while (i < lines.length && /^- /.test(lines[i])) it.push(lines[i++].slice(2).trim()); out.push({ t: 'ul', items: it }); continue; }
+      if (/^\d+\. /.test(l)) { const it = []; while (i < lines.length && /^\d+\. /.test(lines[i])) it.push(lines[i++].replace(/^\d+\. /, '').trim()); out.push({ t: 'ol', items: it }); continue; }
+      const p = [];
+      while (i < lines.length && lines[i].trim() && !special(lines[i])) p.push(lines[i++].trim());
+      out.push({ t: 'p', text: p.join(' ') });
+    }
+    return out;
+  }
+
+  const md = $('#summary-md').textContent;
+  const sections = [];
+  {
+    let cur = null;
+    for (const line of md.split('\n')) {
+      const m = line.match(/^# (.+)$/);
+      if (m) { cur = { title: m[1].trim(), lines: [] }; sections.push(cur); } else if (cur) cur.lines.push(line.replace(/\s+$/, ''));
+    }
+  }
+  sections.forEach((s) => {
+    const m = s.title.match(/^(\d+(?:\.\d+)*)\.?\s+(.+)$/);
+    s.num = m ? m[1] : null;
+    s.name = m ? m[2] : s.title;
+    s.group = s.num ? s.num.split('.')[0] : '0';
+    s.depth = s.num ? s.num.split('.').length : 0;
+    s.id = s.num ? 'sec-' + s.num.replace(/\./g, '-') : 'sec-intro';
+    s.blocks = parseBlocks(s.lines);
+    s.text = plain(s.lines.join('\n')).replace(/\s+/g, ' ').trim();
+  });
+  const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+  const groups = [...new Set(sections.map((s) => s.group))];
+  const leadOf = (g) => sections.find((s) => s.num === g);
+  const groupSecs = (g) => sections.filter((s) => s.group === g);
+  const trackable = sections.filter((s) => s.num);
+
+  // Tiempo de formación por capítulo, tomado de la tabla de "0. Visión general"
+  const chapterTime = {};
+  (leadOf('0') ? leadOf('0').blocks : []).forEach((b) => {
+    if (b.t === 'table' && /Cap/i.test(b.head[0])) b.rows.forEach((r) => { chapterTime[r[0]] = r[2]; });
+  });
+  const groupEyebrow = (g) => (g === '0' ? 'Inicio' : ['1', '2', '3'].includes(g) ? `Capítulo ${g}${chapterTime[g] ? ' · ' + chapterTime[g] : ''}` : `Sección ${g}`);
+
+  // ---------- Render de bloques ----------
+  const EXAM = /^(Idea central|Idea clave|Idea importante|Idea|Importante|Diferencia clave|Principio|Regla conceptual del syllabus|Resumen)$/i;
+  function kindOf(title, group) {
+    if (group === '8') return /^Muy/i.test(title) ? 'prio-high' : 'prio';
+    if (group === '9') return 'lo';
+    if (/^Ejemplo/i.test(title)) return 'example';
+    if (EXAM.test(title)) return 'exam';
+    return 'default';
+  }
+  let loCounter = 0;
+  function renderList(items, kind) {
+    if (kind === 'lo') {
+      return '<ul class="checklist">' + items.map((it) => {
+        const id = 'lo-' + (loCounter++);
+        return `<li><label for="${id}"><input type="checkbox" id="${id}" data-lo="${id}"><span>${inline(it)}</span></label></li>`;
+      }).join('') + '</ul>';
+    }
+    const short = items.length >= 3 && items.every((it) => plain(it).length <= 34 && !it.includes('→'));
+    if (short) return `<ul class="chips${kind && kind.startsWith('prio') ? ' ' + kind : ''}">${items.map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`;
+    return `<ul class="list">${items.map((i) => `<li>${inline(i).replace(/ → /g, ' <span class="arr">→</span> ')}</li>`).join('')}</ul>`;
+  }
+  function renderFlow(text) {
+    return '<ol class="flow">' + text.split('→').map((p) => `<li><span>${inline(p.trim())}</span></li>`).join('') + '</ol>';
+  }
+  function quadrant(b) {
+    const hi = (v) => norm(v) === 'alta';
+    const find = (inf, int) => b.rows.find((r) => hi(r[1]) === inf && hi(r[2]) === int);
+    const cell = (r, hot) => r ? `<div class="cell${hot ? ' hot' : ''}"><b>${esc(r[0])}</b><span>Influencia ${esc(r[1].toLowerCase())} · Interés ${esc(r[2].toLowerCase())}</span></div>` : '<div class="cell"></div>';
+    return `<div class="quad" aria-label="Matriz de stakeholders: influencia frente a interés">
+      <div class="ax y">Influencia ↑</div>
+      ${cell(find(true, false))}${cell(find(true, true), true)}
+      ${cell(find(false, false))}${cell(find(false, true))}
+      <div></div><div class="ax x">Interés →</div></div>`;
+  }
+  function renderTable(b) {
+    const isNum = b.align.map((a, ci) => a === 'right' && b.rows.every((r) => /^\d/.test(r[ci] || '')));
+    const max = isNum.map((n, ci) => (n ? Math.max(...b.rows.map((r) => parseFloat(r[ci]))) : 0));
+    const cell = (c, ci) => {
+      if (c === 'Sí') return '<span class="yn yes">Sí</span>';
+      if (c === 'No') return '<span class="yn no">No</span>';
+      if (isNum[ci]) { const v = parseFloat(c); return `<div class="bar-cell"><span class="bar" style="--w:${(v / max[ci] * 100).toFixed(1)}%"></span><span class="num">${esc(c)}</span></div>`; }
+      return inline(c);
+    };
+    const cls = b.head.length === 2 ? ' class="versus"' : '';
+    let html = `<div class="table-wrap"><table${cls}><thead><tr>${b.head.map((h, ci) => `<th${b.align[ci] === 'right' && !isNum[ci] ? ' class="r"' : ''}>${inline(h)}</th>`).join('')}</tr></thead><tbody>`;
+    html += b.rows.map((r) => `<tr>${r.map((c, ci) => `<td>${cell(c, ci)}</td>`).join('')}</tr>`).join('');
+    html += '</tbody></table></div>';
+    if (b.head[0] === 'Tipo' && b.head.includes('Influencia')) html += quadrant(b);
+    return html;
+  }
+  function renderBlocks(bs, kind) {
+    let out = '';
+    bs.forEach((b, idx) => {
+      const prev = bs[idx - 1];
+      if (b.t === 'p') {
+        const t = b.text;
+        if (/^\*\*[^*]*→[^*]*\*\*$/.test(t)) out += renderFlow(t.slice(2, -2));
+        else if (/^`[^`]+`$/.test(t)) out += `<div class="formula">${esc(t.slice(1, -1))}</div>`;
+        else if (/^\*\*[^*]+\*\*$/.test(t)) out += `<p class="statement">${inline(t)}</p>`;
+        else out += `<p>${inline(t)}</p>`;
+      } else if (b.t === 'quote') {
+        let cls = '';
+        if (prev && prev.t === 'p') {
+          const pt = norm(prev.text);
+          if (pt.includes('poco util')) cls = ' bad';
+          else if (pt.includes('mas util') || pt.includes('medible')) cls = ' good';
+        }
+        out += `<blockquote class="q${cls}">${b.lines.map((l) => `<p>${inline(l)}</p>`).join('')}</blockquote>`;
+      } else if (b.t === 'ul') out += renderList(b.items, kind);
+      else if (b.t === 'ol') out += `<ol class="steps">${b.items.map((i) => `<li><span>${inline(i)}</span></li>`).join('')}</ol>`;
+      else if (b.t === 'table') out += renderTable(b);
+      else if (b.t === 'h') out += `<h4>${inline(b.text)}</h4>`;
+    });
+    return out;
+  }
+  function splitBy(blocks, test) {
+    const pre = []; const parts = []; let cur = null;
+    for (const b of blocks) {
+      if (test(b)) { cur = { title: b.text, blocks: [] }; parts.push(cur); } else (cur ? cur.blocks : pre).push(b);
+    }
+    return { pre, parts };
+  }
+  const TAGS = { exam: 'Clave de examen', example: 'Ejemplo', 'prio-high': 'Prioridad máxima', prio: 'Prioridad' };
+  function renderSub(x, s) {
+    const kind = kindOf(x.title, s.group);
+    const { pre, parts } = splitBy(x.blocks, (b) => b.t === 'h' && b.level >= 3);
+    let inner = renderBlocks(pre, kind);
+    if (parts.length) inner += '<div class="card-grid">' + parts.map((c) => `<div class="concept"><h4>${inline(c.title)}</h4>${renderBlocks(c.blocks, kind)}</div>`).join('') + '</div>';
+    const tag = TAGS[kind];
+    const showTitle = !(kind === 'example' && /^Ejemplo$/i.test(x.title));
+    return `<section class="sub sub-${kind}">${tag ? `<span class="tag">${tag}</span>` : ''}${showTitle ? `<h3>${inline(x.title)}</h3>` : ''}${inner}</section>`;
+  }
+  function renderSectionBody(s) {
+    const { pre, parts } = splitBy(s.blocks, (b) => b.t === 'h' && b.level === 2);
+    let html = renderBlocks(pre, 'default');
+    const compact = parts.length >= 3 && parts.every((x) => kindOf(x.title, s.group) === 'default' && x.blocks.length <= 3 && !x.blocks.some((b) => b.t === 'table' || b.t === 'h'));
+    if (compact) html += '<div class="mini-grid">' + parts.map((x) => `<div class="mini"><h3>${inline(x.title)}</h3>${renderBlocks(x.blocks, 'default')}</div>`).join('') + '</div>';
+    else html += parts.map((x) => renderSub(x, s)).join('');
+    return html;
+  }
+
+  // ---------- Progreso de estudio ----------
+  const studied = () => store.get('studied', {});
+  const isDone = (id) => !!studied()[id];
+  function setDone(id, v) { const st = { ...studied() }; if (v) st[id] = true; else delete st[id]; store.set('studied', st); refreshProgress(); }
+  const groupProgress = (g) => { const list = groupSecs(g).filter((s) => s.num); return [list.filter((s) => isDone(s.id)).length, list.length]; };
+
+  // ---------- Vista de estudio ----------
+  const viewStudy = $('#view-study');
+  const groupEls = {};
+  function doneBtn(s) {
+    const on = isDone(s.id);
+    return `<button class="done-btn" data-done="${s.id}" aria-pressed="${on}"><span class="box">${on ? '✓' : ''}</span>${on ? 'Estudiado' : 'Marcar estudiado'}</button>`;
+  }
+  function renderGroup(g) {
+    const lead = leadOf(g);
+    const idx = groups.indexOf(g);
+    let html = '';
+    if (g === '0') {
+      const intro = byId['sec-intro'];
+      if (intro) {
+        const [main, sub] = intro.title.split(' — ');
+        const q = intro.blocks.find((b) => b.t === 'quote');
+        html += `<header class="hero"><p class="eyebrow">${esc(groupEyebrow(g))}</p><h1>${inline(main)}</h1>${sub ? `<p class="sub">${inline(sub)}</p>` : ''}
+          ${q ? `<div class="source-note">${q.lines.map((l) => `<p>${inline(l)}</p>`).join('')}</div>` : ''}</header>`;
+      }
+      html += '<div class="dash" id="dash"></div>';
+    } else {
+      html += `<header class="group-head"><p class="eyebrow">${esc(groupEyebrow(g))}</p><h1>${inline(lead ? lead.name : '')}</h1>
+        <div class="group-meta"><span class="track"><i data-gbar="${g}"></i></span><span data-gtext="${g}"></span></div></header>`;
+    }
+    for (const s of groupSecs(g)) {
+      if (!s.num) continue;
+      const isLead = s === lead;
+      html += `<article class="sec depth-${s.depth}${isLead ? ' lead' : ''}" id="${s.id}">
+        <div class="sec-head">${isLead ? '' : `<span class="num">${esc(s.num)}</span><h2>${inline(s.name)}</h2>`}${doneBtn(s)}</div>
+        <div class="sec-body">${renderSectionBody(s)}${s.group === '7' && isLead ? '<p><a class="btn primary" href="#repaso">Practicar estos conceptos como tarjetas</a></p>' : ''}</div></article>`;
+    }
+    const prev = groups[idx - 1]; const next = groups[idx + 1];
+    const label = (x) => (leadOf(x) ? leadOf(x).name : 'Inicio');
+    html += `<nav class="pager">${prev ? `<a href="#g-${prev}"><small>← ${esc(groupEyebrow(prev))}</small>${inline(label(prev))}</a>` : '<span></span>'}
+      ${next ? `<a class="next" href="#g-${next}"><small>${esc(groupEyebrow(next))} →</small>${inline(label(next))}</a>` : ''}</nav>`;
+    const el = document.createElement('div');
+    el.className = 'group';
+    el.dataset.group = g;
+    el.hidden = true;
+    el.innerHTML = html;
+    viewStudy.appendChild(el);
+    groupEls[g] = el;
+  }
+  groups.forEach(renderGroup);
+
+  // Objetivos de aprendizaje: estado de las casillas
+  const loState = store.get('los', {});
+  $$('[data-lo]').forEach((cb) => { cb.checked = !!loState[cb.dataset.lo]; });
+  viewStudy.addEventListener('change', (e) => {
+    const cb = e.target.closest('[data-lo]');
+    if (!cb) return;
+    const st = { ...store.get('los', {}) };
+    if (cb.checked) st[cb.dataset.lo] = true; else delete st[cb.dataset.lo];
+    store.set('los', st);
+  });
+  viewStudy.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-done]');
+    if (!b) return;
+    const id = b.dataset.done;
+    setDone(id, !isDone(id));
+  });
+
+  // ---------- Índice lateral ----------
+  const toc = $('#toc');
+  function renderToc(activeGroup) {
+    toc.innerHTML = groups.map((g) => {
+      const lead = leadOf(g);
+      const [d, t] = groupProgress(g);
+      const on = g === activeGroup;
+      const secs = on ? `<ul class="toc-secs">${groupSecs(g).filter((s) => s.num && s !== lead).map((s) =>
+        `<li><a href="#${s.id}" data-sec="${s.id}" class="d${Math.min(s.depth, 3)}${isDone(s.id) ? ' done' : ''}"><span class="n">${esc(s.num)}</span><span>${inline(s.name)}</span></a></li>`).join('')}</ul>` : '';
+      return `<div class="toc-group"><a class="toc-g${on ? ' on' : ''}" href="#g-${g}"><span class="gnum">${g === '0' ? '0' : esc(g)}</span><span>${inline(lead ? lead.name : 'Visión general')}</span><span class="gcount${d === t ? ' full' : ''}">${d}/${t}</span></a>${secs}</div>`;
+    }).join('');
+  }
+
+  // ---------- Panel de avance ----------
+  const QDATA = JSON.parse($('#questions-json').textContent);
+  const QS = QDATA.questions;
+  const termSection = leadOf('7');
+  const TERMS = [];
+  if (termSection) {
+    const { parts } = splitBy(termSection.blocks, (b) => b.t === 'h' && b.level === 2);
+    parts.forEach((p) => { const def = p.blocks.find((b) => b.t === 'p'); if (def) TERMS.push({ term: p.title, def: def.text }); });
+  }
+  function renderDash() {
+    const dash = $('#dash');
+    if (!dash) return;
+    const done = trackable.filter((s) => isDone(s.id)).length;
+    const pct = Math.round(done / trackable.length * 100);
+    const next = trackable.find((s) => !isDone(s.id));
+    const hist = store.get('quizHistory', []);
+    const last = hist[0];
+    const cards = store.get('cards', {});
+    const known = TERMS.filter((t) => cards[t.term] === 'known').length;
+    const chap = ['1', '2', '3'].map((g) => { const [d, t] = groupProgress(g); return `<div><span>Cap. ${g}</span><span class="track"><i style="--w:${t ? d / t * 100 : 0}%;--c:var(--pass)"></i></span><span>${d}/${t}</span></div>`; }).join('');
+    dash.innerHTML = `
+      <div class="tile"><span class="k">Resumen estudiado</span><span class="v">${pct}% <small>${done}/${trackable.length} secciones</small></span>
+        <div class="chap-bars">${chap}</div>
+        ${next ? `<a href="#${next.id}">Continuar: ${esc(next.num)} ${inline(next.name)} →</a>` : '<span class="muted">Todas las secciones marcadas.</span>'}</div>
+      <div class="tile"><span class="k">Práctica · 50 preguntas</span><span class="v">${last ? last.pct + '%' : '—'} <small>${last ? `último intento (${last.correct}/${last.total})` : 'sin intentos todavía'}</small></span>
+        <span class="track"><i style="--w:${last ? last.pct : 0}%"></i></span>
+        <a href="#practica">${last ? 'Nueva práctica →' : 'Empezar a practicar →'}</a></div>
+      <div class="tile"><span class="k">Repaso rápido</span><span class="v">${known}/${TERMS.length} <small>conceptos dominados</small></span>
+        <span class="track"><i style="--w:${TERMS.length ? known / TERMS.length * 100 : 0}%;--c:var(--pass)"></i></span>
+        <a href="#repaso">Abrir tarjetas →</a></div>`;
+  }
+
+  function refreshProgress() {
+    const done = trackable.filter((s) => isDone(s.id)).length;
+    const pct = Math.round(done / trackable.length * 100);
+    $('#top-bar').style.setProperty('--w', pct + '%');
+    $('#top-pct').textContent = `${pct}% · ${done}/${trackable.length}`;
+    $('#mode-study-count').textContent = `${done}/${trackable.length}`;
+    $$('[data-done]').forEach((b) => {
+      const on = isDone(b.dataset.done);
+      b.setAttribute('aria-pressed', on);
+      b.innerHTML = `<span class="box">${on ? '✓' : ''}</span>${on ? 'Estudiado' : 'Marcar estudiado'}`;
+    });
+    groups.forEach((g) => {
+      const [d, t] = groupProgress(g);
+      const bar = $(`[data-gbar="${g}"]`); if (bar) bar.style.setProperty('--w', (t ? d / t * 100 : 0) + '%');
+      const txt = $(`[data-gtext="${g}"]`); if (txt) txt.textContent = `${d} de ${t} secciones estudiadas`;
+    });
+    renderToc(currentGroup);
+    renderDash();
+    const cards = store.get('cards', {});
+    $('#mode-cards-count').textContent = `${TERMS.filter((t) => cards[t.term] === 'known').length}/${TERMS.length}`;
+  }
+
+  // ---------- Navegación ----------
+  let currentGroup = '0';
+  let currentView = 'study';
+  function showView(v) {
+    currentView = v;
+    $('#view-study').hidden = v !== 'study';
+    $('#view-cards').hidden = v !== 'cards';
+    $('#view-quiz').hidden = v !== 'quiz';
+    $$('.mode').forEach((m) => m.classList.toggle('on', m.dataset.mode === v));
+    if (v === 'cards') renderCards();
+    if (v === 'quiz') renderQuiz();
+  }
+  function showGroup(g) {
+    if (!groupEls[g]) g = '0';
+    currentGroup = g;
+    Object.entries(groupEls).forEach(([k, el]) => { el.hidden = k !== g; });
+    renderToc(g);
+    observeSections(g);
+  }
+  function route() {
+    const h = decodeURIComponent(location.hash.slice(1)) || 'g-0';
+    if (h === 'repaso') { showView('cards'); window.scrollTo(0, 0); }
+    else if (h === 'practica') { showView('quiz'); window.scrollTo(0, 0); }
+    else if (h.startsWith('sec-') && byId[h]) {
+      const s = byId[h];
+      showView('study'); showGroup(s.group);
+      const el = document.getElementById(h);
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ block: 'start' });
+          el.classList.remove('flash-on'); void el.offsetWidth; el.classList.add('flash-on');
+        });
+      } else window.scrollTo(0, 0);
+    } else {
+      showView('study'); showGroup(h.startsWith('g-') ? h.slice(2) : '0'); window.scrollTo(0, 0);
+    }
+    closeSidebar();
+  }
+  window.addEventListener('hashchange', route);
+
+  // Resaltar en el índice la sección visible
+  let io = null;
+  function observeSections(g) {
+    if (io) io.disconnect();
+    if (!('IntersectionObserver' in window)) return;
+    io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) {
+          $$('.toc-secs a').forEach((a) => a.classList.toggle('cur', a.dataset.sec === en.target.id));
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    $$('.sec', groupEls[g]).forEach((el) => io.observe(el));
+  }
+
+  // Menú móvil
+  const sidebar = $('#sidebar'); const scrim = $('#scrim'); const menuBtn = $('#menu-btn');
+  function closeSidebar() { sidebar.classList.remove('open'); scrim.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }
+  menuBtn.addEventListener('click', () => { const open = !sidebar.classList.contains('open'); sidebar.classList.toggle('open', open); scrim.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open)); });
+  scrim.addEventListener('click', closeSidebar);
+
+  // ---------- Buscador ----------
+  const searchInput = $('#search'); const results = $('#results');
+  const index = trackable.map((s) => ({ s, n: norm(s.num + ' ' + s.name), t: norm(s.text) }));
+  let resSel = 0; let resList = [];
+  function highlight(raw, terms) {
+    const n = norm(raw);
+    if (n.length !== raw.length) return esc(raw);
+    const marks = new Array(raw.length).fill(false);
+    terms.forEach((t) => { let p = n.indexOf(t); while (p !== -1 && t) { for (let k = p; k < p + t.length; k++) marks[k] = true; p = n.indexOf(t, p + t.length); } });
+    let out = ''; let open = false;
+    for (let k = 0; k < raw.length; k++) {
+      if (marks[k] && !open) { out += '<mark>'; open = true; }
+      if (!marks[k] && open) { out += '</mark>'; open = false; }
+      out += esc(raw[k]);
+    }
+    return out + (open ? '</mark>' : '');
+  }
+  function doSearch() {
+    const q = norm(searchInput.value.trim());
+    if (q.length < 2) { results.hidden = true; return; }
+    const terms = q.split(/\s+/).filter(Boolean);
+    resList = index.map((e) => {
+      let score = 0;
+      for (const t of terms) {
+        const inName = e.n.includes(t);
+        const count = e.t.split(t).length - 1;
+        if (!inName && !count) return null;
+        score += (inName ? 20 : 0) + Math.min(count, 6);
+      }
+      return { e, score };
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 10);
+    resSel = 0;
+    if (!resList.length) { results.innerHTML = `<div class="res-empty">Sin resultados para “${esc(searchInput.value.trim())}” en el resumen.</div>`; results.hidden = false; return; }
+    results.innerHTML = resList.map(({ e }, i) => {
+      const raw = e.s.text;
+      const p = e.t.indexOf(terms[0]);
+      const start = Math.max(0, p - 50);
+      const snip = (start > 0 ? '…' : '') + raw.slice(start, start + 150) + (raw.length > start + 150 ? '…' : '');
+      return `<a class="res${i === 0 ? ' on' : ''}" role="option" href="#${e.s.id}"><span class="rnum">${esc(e.s.num)}</span><span class="rtitle">${highlight(e.s.name, terms)}</span><span class="rsnip">${p >= 0 ? highlight(snip, terms) : ''}</span></a>`;
+    }).join('');
+    results.hidden = false;
+  }
+  searchInput.addEventListener('input', doSearch);
+  searchInput.addEventListener('focus', doSearch);
+  searchInput.addEventListener('keydown', (e) => {
+    const items = $$('.res', results);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!items.length) return;
+      resSel = (resSel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items.forEach((it, i) => it.classList.toggle('on', i === resSel));
+      items[resSel].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      if (items[resSel]) { location.hash = items[resSel].getAttribute('href').slice(1); results.hidden = true; searchInput.blur(); }
+    } else if (e.key === 'Escape') { results.hidden = true; searchInput.blur(); }
+  });
+  results.addEventListener('click', (e) => { if (e.target.closest('.res')) { results.hidden = true; } });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.search')) results.hidden = true; });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+  });
+
+  // ---------- Repaso rápido (tarjetas desde la sección 7) ----------
+  const cardsState = { order: TERMS.map((_, i) => i), pos: 0, flipped: false, onlyPending: false };
+  function cardPool() {
+    const cards = store.get('cards', {});
+    return cardsState.onlyPending ? cardsState.order.filter((i) => cards[TERMS[i].term] !== 'known') : cardsState.order;
+  }
+  function renderCards() {
+    const view = $('#view-cards');
+    const cards = store.get('cards', {});
+    const pool = cardPool();
+    if (cardsState.pos >= pool.length) cardsState.pos = 0;
+    const known = TERMS.filter((t) => cards[t.term] === 'known').length;
+    const i = pool[cardsState.pos];
+    const t = TERMS[i];
+    const status = t ? cards[t.term] : null;
+    const statusHtml = status === 'known' ? '<span class="status known">Dominado</span>' : status === 'again' ? '<span class="status again">Repasar</span>' : '';
+    view.innerHTML = `
+      <header class="view-head"><p class="eyebrow">Sección 7 · Conceptos para repaso rápido</p><h1>Repaso rápido</h1>
+        <p>${TERMS.length} conceptos del resumen. Lee el concepto, intenta definirlo y voltea la tarjeta para comprobarlo. Llevas ${known} de ${TERMS.length} dominados.</p></header>
+      ${t ? `<div class="flash-stage"><button class="flash${cardsState.flipped ? ' flipped' : ''}" id="flash" aria-label="Voltear tarjeta">
+        <div class="face front">${statusHtml}<span class="k">Concepto</span><span class="term">${inline(t.term)}</span><span class="hint">Pulsa la tarjeta o la barra espaciadora para ver la definición</span></div>
+        <div class="face back">${statusHtml}<span class="k">${inline(t.term)}</span><span class="def">${inline(t.def)}</span></div>
+      </button></div>
+      <div class="flash-ctrl">
+        <div class="grp"><button class="btn" data-c="prev" aria-label="Anterior">←</button><span class="flash-count">${cardsState.pos + 1} / ${pool.length}</span><button class="btn" data-c="next" aria-label="Siguiente">→</button></div>
+        <div class="grp"><button class="btn warn" data-c="again">Repasar otra vez</button><button class="btn good" data-c="known">Lo domino</button></div>
+      </div>` : `<div class="source-note"><p>No quedan conceptos pendientes. Desactiva “Solo pendientes” para ver todos.</p></div>`}
+      <div class="flash-ctrl">
+        <div class="grp"><label class="toggle"><input type="checkbox" id="only-pending" ${cardsState.onlyPending ? 'checked' : ''}> Solo pendientes</label></div>
+        <div class="grp"><button class="btn ghost" data-c="shuffle">Barajar</button><button class="btn ghost" data-c="reset">Reiniciar marcas</button></div>
+      </div>
+      <div class="term-strip" aria-label="Todos los conceptos">${TERMS.map((x, k) => `<button data-jump="${k}" class="${cards[x.term] || ''}${k === i ? ' cur' : ''}">${inline(x.term)}</button>`).join('')}</div>`;
+  }
+  function cardAct(c) {
+    const pool = cardPool();
+    const cards = { ...store.get('cards', {}) };
+    if (c === 'flip') { cardsState.flipped = !cardsState.flipped; const f = $('#flash'); if (f) f.classList.toggle('flipped', cardsState.flipped); return; }
+    if (c === 'prev') { cardsState.pos = (cardsState.pos - 1 + pool.length) % pool.length; cardsState.flipped = false; }
+    if (c === 'next') { cardsState.pos = (cardsState.pos + 1) % pool.length; cardsState.flipped = false; }
+    if (c === 'known' || c === 'again') {
+      const t = TERMS[pool[cardsState.pos]];
+      cards[t.term] = c; store.set('cards', cards);
+      cardsState.flipped = false;
+      if (!(cardsState.onlyPending && c === 'known')) cardsState.pos = (cardsState.pos + 1) % pool.length;
+      refreshProgress();
+    }
+    if (c === 'shuffle') {
+      const o = cardsState.order;
+      for (let k = o.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [o[k], o[j]] = [o[j], o[k]]; }
+      cardsState.pos = 0; cardsState.flipped = false;
+    }
+    if (c === 'reset') { store.set('cards', {}); cardsState.pos = 0; cardsState.flipped = false; refreshProgress(); }
+    renderCards();
+  }
+  $('#view-cards').addEventListener('click', (e) => {
+    if (e.target.closest('#flash')) return cardAct('flip');
+    const b = e.target.closest('[data-c]'); if (b) return cardAct(b.dataset.c);
+    const j = e.target.closest('[data-jump]');
+    if (j) {
+      const k = Number(j.dataset.jump);
+      if (cardsState.onlyPending && !cardPool().includes(k)) cardsState.onlyPending = false;
+      cardsState.pos = cardPool().indexOf(k); cardsState.flipped = false; renderCards();
+    }
+  });
+  $('#view-cards').addEventListener('change', (e) => { if (e.target.id === 'only-pending') { cardsState.onlyPending = e.target.checked; cardsState.pos = 0; cardsState.flipped = false; renderCards(); } });
+
+  // ---------- Práctica (banco de 50 preguntas) ----------
+  // Relación tema de la pregunta -> sección del resumen para repasar
+  const TOPIC_SEC = {
+    'Test Planning': '1.1.1', 'Test Monitoring vs Test Control': '1.1.3', 'Test Completion': '1.1.4', 'Stakeholders': '1.2.2',
+    'Hybrid Software Development': '1.2.3', 'Sequential vs Iterative': '1.2.4', 'Test Levels': '1.2.5', 'Test Types': '1.2.6',
+    'Risk-Based Testing': '1.3.4', 'Risk Identification': '1.3.3', 'Quality Risk Assessment': '1.3.4', 'Risk Likelihood': '1.3.4',
+    'Risk Impact': '1.3.4', 'Risk Mitigation': '1.3.5', 'Heavyweight vs Lightweight RBT': '1.3.6', 'Heavyweight RBT Techniques': '1.3.6',
+    'Test Strategy vs Test Approach': '1.4.1', 'SMART Objectives': '1.4.3', 'Exit Criteria': '1.4.4', 'IDEAL': '1.5.1',
+    'Retrospectives': '1.5.4', 'Tool Selection': '1.6.3', 'Tool Lifecycle': '1.6.4', 'Tool Metrics': '1.6.5', 'RBT Success Metrics': '1.3.7',
+    'Project / Product / Process Metrics': '2.1.1', 'Metrics Interpretation': '2.1.3', 'Monitoring / Control Metrics': '2.1.2',
+    'Test Reporting': '2.1.3', 'Test Estimation': '2.2.1', 'Estimation Technique Selection': '2.2.2', 'Three-Point Estimation': '2.2.3',
+    'Ratio-Based Estimation': '2.2.4', 'Planning Poker vs Wideband Delphi': '2.2.7', 'Defect Lifecycle': '2.3.1',
+    'Cross-Functional Defect Management': '2.3.2', 'Agile Defect Management': '2.3.3', 'Hybrid Defect Management': '2.3.4',
+    'Defect Report Information': '2.3.5', 'Defect Data for Process Improvement': '2.3.6', 'Four Areas of Competence': '3.1',
+    'Professional Competence': '3.1.1', 'Required Skills': '3.2', 'Methodological Competence': '3.1.2', 'Personal Competence': '3.1.4',
+    'Motivators vs Hygiene Factors': '3.5', 'Cost of Quality': '3.6', 'Prevention vs Appraisal': '3.6.1', 'Cost-Benefit of Testing': '3.7',
+    'Integrated Test Management Decision': '1.1.3',
+  };
+  const secFor = (q) => { const n = TOPIC_SEC[q.topic]; return n ? byId['sec-' + n.replace(/\./g, '-')] : null; };
+  const CH_NAME = { 1: leadOf('1') ? leadOf('1').name : '', 2: leadOf('2') ? leadOf('2').name : '', 3: leadOf('3') ? leadOf('3').name : '' };
+  const LEVELS = ['K2', 'K3', 'K4'];
+  const DIFFS = ['medium', 'medium-high', 'high'];
+  const countBy = (list, key) => list.reduce((a, q) => ((a[q[key]] = (a[q[key]] || 0) + 1), a), {});
+
+  let quiz = null; // { list, pos, answers, revealed, mode, confirm, finished, filter }
+  const prefs = () => ({ chapter: 'all', levels: LEVELS.slice(), diffs: DIFFS.slice(), mode: 'practice', shuffle: true, onlyWrong: false, ...store.get('quizPrefs', {}) });
+  function filtered(p) {
+    const wrong = new Set(store.get('quizWrong', []));
+    return QS.filter((q) => (p.chapter === 'all' || String(q.chapter) === p.chapter) && p.levels.includes(q.level) && p.diffs.includes(q.difficulty) && (!p.onlyWrong || wrong.has(q.id)));
+  }
+  function distTile(title, counts, keys, labels) {
+    const max = Math.max(...keys.map((k) => counts[k] || 0), 1);
+    return `<div class="tile"><span class="k">${title}</span><div class="rows">${keys.map((k) => `<div><span>${labels ? labels[k] : k}</span><span class="track"><i style="--w:${(counts[k] || 0) / max * 100}%"></i></span><span>${counts[k] || 0}</span></div>`).join('')}</div></div>`;
+  }
+  function renderSetup(view) {
+    const p = prefs();
+    const wrongN = store.get('quizWrong', []).length;
+    const n = filtered(p).length;
+    const hist = store.get('quizHistory', []);
+    const chCount = countBy(QS, 'chapter');
+    view.innerHTML = `
+      <header class="view-head"><p class="eyebrow">Banco de preguntas · ${QS.length}</p><h1>Práctica tipo examen</h1>
+        <p>Preguntas de escenario sobre los tres capítulos, con la explicación de cada respuesta y un enlace a la sección del resumen que conviene repasar.</p></header>
+      <div class="dist">
+        ${distTile('Por capítulo', chCount, [1, 2, 3], { 1: 'Cap. 1', 2: 'Cap. 2', 3: 'Cap. 3' })}
+        ${distTile('Por nivel K', countBy(QS, 'level'), LEVELS)}
+        ${distTile('Por dificultad', countBy(QS, 'difficulty'), DIFFS)}
+      </div>
+      <form class="qform" id="qform">
+        <fieldset><legend>Capítulo</legend><div class="pills">
+          ${[['all', 'Todos', QS.length], ['1', 'Cap. 1 · ' + CH_NAME[1], chCount[1]], ['2', 'Cap. 2 · ' + CH_NAME[2], chCount[2]], ['3', 'Cap. 3 · ' + CH_NAME[3], chCount[3]]].map(([v, l, c]) =>
+            `<label class="pill"><input type="radio" name="chapter" id="qf-ch-${v}" value="${v}" ${p.chapter === v ? 'checked' : ''}><span>${esc(l)} <small>${c}</small></span></label>`).join('')}
+        </div></fieldset>
+        <fieldset><legend>Nivel cognitivo</legend><div class="pills">
+          ${LEVELS.map((l) => `<label class="pill"><input type="checkbox" name="levels" id="qf-lv-${l}" value="${l}" ${p.levels.includes(l) ? 'checked' : ''}><span>${l}</span></label>`).join('')}
+        </div></fieldset>
+        <fieldset><legend>Dificultad</legend><div class="pills">
+          ${DIFFS.map((d) => `<label class="pill"><input type="checkbox" name="diffs" id="qf-df-${d}" value="${d}" ${p.diffs.includes(d) ? 'checked' : ''}><span>${d}</span></label>`).join('')}
+        </div></fieldset>
+        <fieldset><legend>Modo</legend><div class="mode-cards">
+          <label class="mode-card"><input type="radio" name="mode" id="qf-mode-practice" value="practice" ${p.mode === 'practice' ? 'checked' : ''}><span><b>Práctica</b><small>Ves si acertaste y la explicación justo después de responder.</small></span></label>
+          <label class="mode-card"><input type="radio" name="mode" id="qf-mode-exam" value="exam" ${p.mode === 'exam' ? 'checked' : ''}><span><b>Simulacro</b><small>Respondes todo sin ayuda, puedes volver atrás y ves el resultado al final.</small></span></label>
+        </div></fieldset>
+        <fieldset><legend>Opciones</legend><div class="pills">
+          <label class="pill"><input type="checkbox" name="shuffle" id="qf-shuffle" ${p.shuffle ? 'checked' : ''}><span>Orden aleatorio</span></label>
+          <label class="pill"><input type="checkbox" name="onlyWrong" id="qf-wrong" ${p.onlyWrong ? 'checked' : ''} ${wrongN ? '' : 'disabled'}><span>Solo las que fallé <small>${wrongN}</small></span></label>
+        </div></fieldset>
+        <div class="actions"><span class="muted" id="qf-count">${n} preguntas seleccionadas</span>
+          <button class="btn primary" type="submit" id="qf-start" ${n ? '' : 'disabled'}>Empezar · ${n} preguntas</button></div>
+      </form>
+      ${hist.length ? `<div class="history"><h2>Intentos recientes</h2>${hist.slice(0, 5).map((h) =>
+        `<div class="hist-row"><span>${esc(h.date)} · ${h.mode === 'exam' ? 'Simulacro' : 'Práctica'}</span><span class="muted">${h.correct}/${h.total}</span><span class="pct">${h.pct}%</span></div>`).join('')}</div>` : ''}`;
+  }
+  function readForm(form) {
+    const fd = new FormData(form);
+    return { chapter: fd.get('chapter') || 'all', levels: fd.getAll('levels'), diffs: fd.getAll('diffs'), mode: fd.get('mode') || 'practice', shuffle: !!fd.get('shuffle'), onlyWrong: !!fd.get('onlyWrong') };
+  }
+  function startQuiz(list, mode) {
+    quiz = { list, pos: 0, answers: {}, revealed: {}, mode, confirm: false, finished: false, filter: 'all' };
+    renderQuiz(); window.scrollTo(0, 0);
+  }
+  function renderQText(text) { return renderBlocks(parseBlocks(text.split('\n')), 'default'); }
+  function optsHtml(q, chosen, reveal, disabled) {
+    return `<div class="opts" role="group" aria-label="Opciones">${['A', 'B', 'C', 'D'].map((L) => {
+      let cls = '';
+      if (reveal) { if (L === q.correctAnswer) cls = ' correct'; else if (L === chosen) cls = ' wrong'; } else if (L === chosen) cls = ' sel';
+      return `<button class="opt${cls}" data-opt="${L}" ${disabled ? 'disabled' : ''} aria-pressed="${L === chosen}"><span class="L">${L}</span><span>${inline(q.options[L])}</span></button>`;
+    }).join('')}</div>`;
+  }
+  function studyLink(q) { const s = secFor(q); return s ? `<a class="study-link" href="#${s.id}">Repasar en el resumen: ${esc(s.num)} ${inline(s.name)} →</a>` : ''; }
+  function metaHtml(q) {
+    return `<div class="q-meta"><span class="chip">Cap. ${q.chapter}</span><span class="chip">${esc(q.topic)}</span><span class="chip k">${esc(q.level)}</span><span class="chip d-${esc(q.difficulty)}">${esc(q.difficulty)}</span><span class="qid">#${q.id}</span></div>`;
+  }
+  function renderQuestion(view) {
+    const { list, pos, answers, revealed, mode } = quiz;
+    const q = list[pos];
+    const chosen = answers[q.id];
+    const reveal = mode === 'practice' && revealed[q.id];
+    const answeredN = Object.keys(answers).length;
+    const correctN = list.filter((x) => revealed[x.id] && answers[x.id] === x.correctAnswer).length;
+    const last = pos === list.length - 1;
+    let fb = '';
+    if (reveal) {
+      const ok = chosen === q.correctAnswer;
+      fb = `<div class="feedback ${ok ? 'ok' : 'ko'}" role="status"><span class="verdict">${ok ? '✓ Correcto' : `✗ Incorrecto · la respuesta correcta es ${q.correctAnswer}`}</span><p>${inline(q.explanation)}</p>${studyLink(q)}</div>`;
+    }
+    const nextBtn = mode === 'practice'
+      ? (reveal ? `<button class="btn primary" data-q="${last ? 'finish' : 'next'}">${last ? 'Ver resultado' : 'Siguiente →'}</button>` : '<span class="muted">Elige una opción</span>')
+      : `<button class="btn primary" data-q="${last ? 'finish' : 'next'}">${last ? 'Finalizar simulacro' : 'Siguiente →'}</button>`;
+    view.innerHTML = `
+      <div class="q-top"><button class="btn ghost" data-q="exit">← Salir</button>
+        <span class="q-count">Pregunta ${pos + 1} de ${list.length}${mode === 'practice' ? ` · ${correctN} aciertos` : ` · ${answeredN} respondidas`}</span></div>
+      <div class="q-bar"><i style="--w:${((mode === 'practice' ? Object.keys(revealed).length : answeredN) / list.length * 100).toFixed(1)}%"></i></div>
+      <article class="qcard">${metaHtml(q)}<div class="q-text">${renderQText(q.question)}</div>${optsHtml(q, chosen, reveal, reveal)}${fb}</article>
+      <div class="q-nav">${mode === 'exam' ? `<button class="btn" data-q="prev" ${pos === 0 ? 'disabled' : ''}>← Anterior</button>` : '<span></span>'}${nextBtn}</div>
+      ${mode === 'exam' ? `<div class="palette" aria-label="Ir a pregunta">${list.map((x, k) => `<button data-goto="${k}" class="${answers[x.id] ? 'ans' : ''}${k === pos ? ' cur' : ''}" aria-label="Pregunta ${k + 1}">${k + 1}</button>`).join('')}</div>
+        ${quiz.confirm ? `<div class="confirm"><span>Te quedan ${list.length - answeredN} preguntas sin responder. ¿Finalizar de todos modos?</span><span><button class="btn" data-q="cancel">Seguir respondiendo</button> <button class="btn primary" data-q="finish-force">Finalizar</button></span></div>` : ''}
+        <p class="kbd-hint"><kbd>A</kbd>–<kbd>D</kbd> para responder · <kbd>←</kbd> <kbd>→</kbd> para moverte</p>` : '<p class="kbd-hint"><kbd>A</kbd>–<kbd>D</kbd> para responder · <kbd>Enter</kbd> para continuar</p>'}`;
+  }
+  function finishQuiz() {
+    const { list, answers, mode } = quiz;
+    quiz.finished = true; quiz.confirm = false;
+    const correct = list.filter((q) => answers[q.id] === q.correctAnswer).length;
+    const pct = Math.round(correct / list.length * 100);
+    const wrong = new Set(store.get('quizWrong', []));
+    list.forEach((q) => { if (answers[q.id] === q.correctAnswer) wrong.delete(q.id); else if (answers[q.id]) wrong.add(q.id); });
+    store.set('quizWrong', [...wrong].sort((a, b) => a - b));
+    const d = new Date();
+    const date = d.toLocaleDateString('es', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    store.set('quizHistory', [{ date, mode, total: list.length, correct, pct }, ...store.get('quizHistory', [])].slice(0, 10));
+    refreshProgress();
+    renderQuiz(); window.scrollTo(0, 0);
+  }
+  function breakdownTile(title, keyFn, keys, labels) {
+    const { list, answers } = quiz;
+    const rows = keys.map((k) => {
+      const sub = list.filter((q) => keyFn(q) === k);
+      if (!sub.length) return '';
+      const ok = sub.filter((q) => answers[q.id] === q.correctAnswer).length;
+      const p = Math.round(ok / sub.length * 100);
+      return `<div><span>${labels ? labels[k] : k}</span><span class="track"><i style="--w:${p}%;--c:${p >= 50 ? 'var(--pass)' : 'var(--fail)'}"></i></span><span>${ok}/${sub.length}</span></div>`;
+    }).join('');
+    return `<div class="tile"><span class="k">${title}</span><div class="rows">${rows}</div></div>`;
+  }
+  function renderResults(view) {
+    const { list, answers, filter } = quiz;
+    const correct = list.filter((q) => answers[q.id] === q.correctAnswer).length;
+    const pct = Math.round(correct / list.length * 100);
+    const unanswered = list.filter((q) => !answers[q.id]).length;
+    const failed = list.filter((q) => answers[q.id] !== q.correctAnswer);
+    const shown = list.filter((q) => filter === 'all' || (filter === 'wrong' ? answers[q.id] && answers[q.id] !== q.correctAnswer : filter === 'none' ? !answers[q.id] : false));
+    view.innerHTML = `
+      <div class="score-head"><div class="ring" style="--p:${pct};--c:${pct >= 50 ? 'var(--pass)' : 'var(--fail)'}"><div>${pct}%</div></div>
+        <div><p class="eyebrow">${quiz.mode === 'exam' ? 'Resultado del simulacro' : 'Resultado de la práctica'}</p><h1>${correct} de ${list.length} correctas</h1>
+        <p>${list.length - correct - unanswered} incorrectas${unanswered ? ` · ${unanswered} sin responder` : ''}. Revisa abajo la explicación de cada pregunta.</p></div></div>
+      <div class="breakdown dist">
+        ${breakdownTile('Por capítulo', (q) => q.chapter, [1, 2, 3], { 1: 'Cap. 1', 2: 'Cap. 2', 3: 'Cap. 3' })}
+        ${breakdownTile('Por nivel K', (q) => q.level, LEVELS)}
+        ${breakdownTile('Por dificultad', (q) => q.difficulty, DIFFS)}
+      </div>
+      <div class="results-actions">
+        ${failed.length ? `<button class="btn primary" data-q="retry-failed">Repetir las ${failed.length} falladas</button>` : ''}
+        <button class="btn" data-q="exit">Nueva práctica</button></div>
+      <div class="review-filter"><h2>Revisión</h2>
+        <div class="pills">${[['all', 'Todas', list.length], ['wrong', 'Incorrectas', list.length - correct - unanswered], ['none', 'Sin responder', unanswered]].map(([v, l, c]) =>
+          `<label class="pill"><input type="radio" name="rf" id="rf-${v}" value="${v}" ${filter === v ? 'checked' : ''}><span>${l} <small>${c}</small></span></label>`).join('')}</div></div>
+      ${shown.map((q) => {
+        const a = answers[q.id];
+        const st = !a ? 'na' : a === q.correctAnswer ? 'ok' : 'ko';
+        return `<details class="rev"><summary><span class="mk ${st}">${st === 'ok' ? '✓' : st === 'ko' ? '✗' : '–'}</span>
+          <span class="st">${esc(q.topic)}<small>#${q.id} · Cap. ${q.chapter} · ${esc(q.level)} · ${esc(q.difficulty)}</small></span>
+          <span class="ans">${a ? 'tu: ' + a : 'sin resp.'} · ok: ${q.correctAnswer}</span></summary>
+          <div class="body"><div class="q-text">${renderQText(q.question)}</div>${optsHtml(q, a, true, true)}
+          <div class="feedback"><p>${inline(q.explanation)}</p>${studyLink(q)}</div></div></details>`;
+      }).join('') || '<p class="muted">No hay preguntas en este filtro.</p>'}`;
+  }
+  function renderQuiz() {
+    const view = $('#view-quiz');
+    if (!quiz) renderSetup(view);
+    else if (quiz.finished) renderResults(view);
+    else renderQuestion(view);
+  }
+  function answer(L) {
+    if (!quiz || quiz.finished) return;
+    const q = quiz.list[quiz.pos];
+    if (quiz.mode === 'practice') {
+      if (quiz.revealed[q.id]) return;
+      quiz.answers[q.id] = L; quiz.revealed[q.id] = true;
+    } else {
+      quiz.answers[q.id] = L; quiz.confirm = false;
+    }
+    renderQuiz();
+    const fb = $('.feedback', $('#view-quiz'));
+    if (fb) fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function qAct(a) {
+    if (a === 'exit') { quiz = null; renderQuiz(); window.scrollTo(0, 0); return; }
+    if (a === 'next') { if (quiz.pos < quiz.list.length - 1) quiz.pos++; quiz.confirm = false; }
+    if (a === 'prev') { if (quiz.pos > 0) quiz.pos--; quiz.confirm = false; }
+    if (a === 'cancel') quiz.confirm = false;
+    if (a === 'finish') {
+      const left = quiz.list.filter((q) => !quiz.answers[q.id]).length;
+      if (quiz.mode === 'exam' && left) { quiz.confirm = true; renderQuiz(); return; }
+      return finishQuiz();
+    }
+    if (a === 'finish-force') return finishQuiz();
+    if (a === 'retry-failed') { const f = quiz.list.filter((q) => quiz.answers[q.id] !== q.correctAnswer); return startQuiz(f, quiz.mode); }
+    renderQuiz(); window.scrollTo(0, 0);
+  }
+  const viewQuiz = $('#view-quiz');
+  viewQuiz.addEventListener('click', (e) => {
+    const o = e.target.closest('[data-opt]'); if (o && !o.disabled && !o.closest('.rev')) return answer(o.dataset.opt);
+    const b = e.target.closest('[data-q]'); if (b) return qAct(b.dataset.q);
+    const g = e.target.closest('[data-goto]'); if (g) { quiz.pos = Number(g.dataset.goto); quiz.confirm = false; renderQuiz(); }
+  });
+  viewQuiz.addEventListener('change', (e) => {
+    if (e.target.name === 'rf') { quiz.filter = e.target.value; renderQuiz(); return; }
+    const form = e.target.closest('#qform');
+    if (!form) return;
+    const p = readForm(form);
+    store.set('quizPrefs', p);
+    const n = filtered(p).length;
+    $('#qf-count').textContent = `${n} preguntas seleccionadas`;
+    const btn = $('#qf-start'); btn.disabled = !n; btn.textContent = `Empezar · ${n} preguntas`;
+  });
+  viewQuiz.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const p = readForm(e.target);
+    store.set('quizPrefs', p);
+    let list = filtered(p);
+    if (!list.length) return;
+    if (p.shuffle) { list = list.slice(); for (let k = list.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [list[k], list[j]] = [list[j], list[k]]; } }
+    startQuiz(list, p.mode);
+  });
+
+  // Teclado en práctica y tarjetas
+  document.addEventListener('keydown', (e) => {
+    if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (currentView === 'quiz' && quiz && !quiz.finished) {
+      const k = e.key.toUpperCase();
+      const map = { A: 'A', B: 'B', C: 'C', D: 'D', 1: 'A', 2: 'B', 3: 'C', 4: 'D' };
+      if (map[k]) { e.preventDefault(); return answer(map[k]); }
+      const q = quiz.list[quiz.pos];
+      if ((e.key === 'Enter' || e.key === 'ArrowRight') && document.activeElement.tagName !== 'BUTTON') {
+        if (quiz.mode === 'exam' || quiz.revealed[q.id]) { e.preventDefault(); qAct(quiz.pos === quiz.list.length - 1 ? 'finish' : 'next'); }
+      }
+      if (e.key === 'ArrowLeft' && quiz.mode === 'exam') { e.preventDefault(); qAct('prev'); }
+    } else if (currentView === 'cards') {
+      if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON') { e.preventDefault(); cardAct('flip'); }
+      if (e.key === 'ArrowRight') cardAct('next');
+      if (e.key === 'ArrowLeft') cardAct('prev');
+    }
+  });
+
+  // ---------- Inicio ----------
+  route();
+  refreshProgress();
+})();
+</script>
+
+</body>
+</html>
