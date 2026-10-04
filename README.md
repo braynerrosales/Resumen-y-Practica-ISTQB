@@ -8,6 +8,8 @@ Reúne en una sola página:
 - tarjetas de repaso;
 - un banco de 50 preguntas tipo examen.
 
+🌐 **Sitio web:** https://braynerrosales.github.io/Resumen-y-Practica-ISTQB/
+
 ---
 
 ## Principio del proyecto
@@ -311,8 +313,25 @@ localStorage.removeItem('ctaltm-estudio-v1'); location.reload();
 
 ## Publicar una nueva versión
 
-1. Ejecuta `node build.js`.
-2. Pide a Claude que vuelva a publicar `dist/istqb-ctal-tm-estudio.html` como Artifact en la URL existente. Así se mantiene el mismo enlace y el progreso de quien ya lo usa.
+### GitHub Pages (automático)
+
+El sitio se despliega con GitHub Actions ([`.github/workflows/static.yml`](.github/workflows/static.yml)) en cada `push` a `master`. También se puede lanzar a mano desde la pestaña **Actions** → *Deploy static content to Pages* → **Run workflow**.
+
+El workflow:
+
+1. ejecuta `node build.js` para regenerar la página y el JSON desde `fuentes/` y `src/`;
+2. copia a `_site/` solo `index.html` y `istqb-ctal-test-management-questions.json`;
+3. publica `_site/` en GitHub Pages.
+
+Así, basta con editar un MD de `fuentes/` y hacer `push`: el sitio se reconstruye aunque olvides ejecutar `node build.js` en local. Las fuentes, el script y la plantilla no se publican como parte del sitio.
+
+> Configuración necesaria (una sola vez): en el repositorio, **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+El banco de preguntas también queda accesible en `https://braynerrosales.github.io/Resumen-y-Practica-ISTQB/istqb-ctal-test-management-questions.json`.
+
+### Artifact de Claude (opcional)
+
+Pide a Claude que vuelva a publicar `dist/istqb-ctal-tm-estudio.html` como Artifact en la URL existente.
 
 ---
 
